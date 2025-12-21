@@ -19,8 +19,8 @@ export async function generateMetadata({ searchParams }: PageProps): Promise<Met
 
     if (query) {
         return {
-            title: `Search "${query}" - Claude Skills | skills.rest`,
-            description: `Search results for "${query}" in the Claude Skills library. Find AI tools and automation capabilities matching your needs.`,
+            title: `Search "${query}" - Agent skills | skills.rest`,
+            description: `Search results for "${query}" in the Agent skills library. Find AI tools and automation capabilities matching your needs.`,
             alternates: {
                 canonical: `/explore`,
             },
@@ -32,8 +32,8 @@ export async function generateMetadata({ searchParams }: PageProps): Promise<Met
     }
 
     return {
-        title: 'Explore Claude Skills | Ultimate Skills Library | skills.rest',
-        description: 'Browse the complete Claude Skills library with 2000+ verified tools. Search, filter, and discover AI automation capabilities for every workflow.',
+        title: 'Explore Agent skills | Ultimate Skills Library | skills.rest',
+        description: 'Browse the complete Agent skills library with 2000+ verified tools. Search, filter, and discover AI automation capabilities for every workflow.',
         alternates: {
             canonical: '/explore',
         },

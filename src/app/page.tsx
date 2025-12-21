@@ -15,23 +15,23 @@ export async function generateMetadata() {
     const totalSkills = await getSkillsCount();
 
     return {
-        title: 'Claude Skills Library | skills.rest',
+        title: 'Agent skills Library | skills.rest',
         // ✅ 更新 Description，使用动态数字
-        description: `Instantly deploy ${totalSkills}+ Claude skills with one click. The definitive library for Claude code skills, agent skills, and automation workflows—ready to run in minutes.`,
+        description: `Instantly deploy ${totalSkills}+ Agent skills with one click. The definitive library for Claude code skills, agent skills, and automation workflows—ready to run in minutes.`,
         alternates: {
             canonical: '/',
         },
         openGraph: {
-            title: 'Claude Skills Library | skills.rest',
+            title: 'Agent skills Library | skills.rest',
             // ✅ 更新 OG Description
-            description: `Instantly deploy ${totalSkills}+ Claude skills with one click. The definitive library for Claude code skills, agent skills, and automation workflows—ready to run in minutes.`,
+            description: `Instantly deploy ${totalSkills}+ Agent skills with one click. The definitive library for Claude code skills, agent skills, and automation workflows—ready to run in minutes.`,
             type: 'website',
         },
         twitter: {
             card: 'summary_large_image',
-            title: 'Claude Skills Library | skills.rest',
+            title: 'Agent skills Library | skills.rest',
             // ✅ 更新 Twitter Description
-            description: `Instantly deploy ${totalSkills}+ Claude skills with one click. The definitive library for Claude code skills, agent skills, and automation workflows—ready to run in minutes.`,
+            description: `Instantly deploy ${totalSkills}+ Agent skills with one click. The definitive library for Claude code skills, agent skills, and automation workflows—ready to run in minutes.`,
         },
     };
 }

@@ -13,7 +13,7 @@ const dictionary: Dictionary = {
   'nav.new_arrivals': { en: 'New Arrivals', cn: '最新发布' },
 
   // --- Home Hero ---
-  'home.hero.title': { en: 'Claude Skills Library', cn: 'Claude 技能库' },
+  'home.hero.title': { en: 'Agent skills Library', cn: 'Claude 技能库' },
   'home.hero.stats_suffix': { en: 'Skills Included', cn: '个已收录技能' },
   'home.hero.search_placeholder': { en: "Search for 'data analysis', 'web scraping'...", cn: "搜索 '数据分析', '网页抓取'..." },
   'home.hero.search_btn': { en: 'Search', cn: '搜索' },
@@ -34,7 +34,7 @@ const dictionary: Dictionary = {
   'explore.title': { en: 'Skill Explorer', cn: '技能探索' },
   'explore.subtitle.search': { en: 'Searching protocol for', cn: '正在搜索协议' },
   'explore.subtitle.browse': { en: 'Browsing Sector:', cn: '浏览领域:' },
-  'explore.subtitle.default': { en: 'Access the complete library of Claude Skills.', cn: '访问完整的 Claude 技能库。' },
+  'explore.subtitle.default': { en: 'Access the complete library of Agent skills.', cn: '访问完整的 Claude 技能库。' },
   'explore.search_placeholder': { en: 'Filter skills...', cn: '筛选技能...' },
   'explore.signal_lost': { en: 'Signal Lost', cn: '信号丢失' },
   'explore.no_results': { en: 'No skills match your query parameters.', cn: '没有符合查询参数的技能。' },
@@ -86,10 +86,10 @@ const dictionary: Dictionary = {
 
   // --- Categories Page ---
   'categories.title': { en: 'All Categories', cn: '全部分类' },
-  'categories.subtitle': { en: 'Explore Claude Skills by professional domain and find the perfect AI tools for your work.', cn: '按专业领域探索 Claude 技能，发现适合您工作流的最佳 AI 自动化工具。' },
+  'categories.subtitle': { en: 'Explore Agent skills by professional domain and find the perfect AI tools for your work.', cn: '按专业领域探索 Claude 技能，发现适合您工作流的最佳 AI 自动化工具。' },
 
   // --- Category Detail SEO Block ---
-  'category.seo.title_prefix': { en: 'Why use Claude Skills for', cn: '为什么要在' },
+  'category.seo.title_prefix': { en: 'Why use Agent skills for', cn: '为什么要在' },
   'category.seo.title_suffix': { en: '?', cn: '领域使用 Claude 技能？' },
   'category.seo.p1_start': { en: 'Integrating specialized skills into your', cn: '将专业技能集成到您的' },
   'category.seo.p1_end': { en: 'workflow transforms Claude from a chatbot into a domain expert.', cn: '工作流中，能让 Claude 从普通聊天机器人进化为该领域的业务专家。' },

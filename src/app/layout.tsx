@@ -19,17 +19,17 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-    title: 'Claude Skills Library | skills.rest',
+    title: 'Agent skills Library | skills.rest',
     // ✅ 更新 Description
-    description: 'Instantly deploy 8,000+ Claude skills with one click. The definitive library for Claude code skills, agent skills, and automation workflows—ready to run in minutes.',
+    description: 'Instantly deploy 8,000+ Agent skills with one click. The definitive library for Claude code skills, agent skills, and automation workflows—ready to run in minutes.',
     metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://skills.rest'),
     alternates: {
         canonical: '/',
     },
     openGraph: {
-        title: 'Claude Skills Library | skills.rest',
+        title: 'Agent skills Library | skills.rest',
         // ✅ 更新 OG Description
-        description: 'Instantly deploy 8,000+ Claude skills with one click. The definitive library for Claude code skills, agent skills, and automation workflows—ready to run in minutes.',
+        description: 'Instantly deploy 8,000+ Agent skills with one click. The definitive library for Claude code skills, agent skills, and automation workflows—ready to run in minutes.',
         url: 'https://skills.rest',
         siteName: 'skills.rest',
         type: 'website',
@@ -38,15 +38,15 @@ export const metadata: Metadata = {
                 url: '/og-image.png',
                 width: 1200,
                 height: 630,
-                alt: 'Claude Skills Library',
+                alt: 'Agent skills Library',
             },
         ],
     },
     twitter: {
         card: 'summary_large_image',
-        title: 'Claude Skills Library | skills.rest',
+        title: 'Agent skills Library | skills.rest',
         // ✅ 更新 Twitter Description
-        description: 'Instantly deploy 8,000+ Claude skills with one click. The definitive library for Claude code skills, agent skills, and automation workflows—ready to run in minutes.',
+        description: 'Instantly deploy 8,000+ Agent skills with one click. The definitive library for Claude code skills, agent skills, and automation workflows—ready to run in minutes.',
         images: ['/og-image.png'],
     },
 };

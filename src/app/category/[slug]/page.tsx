@@ -32,19 +32,19 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     }
 
     return {
-        title: `Claude Skills for ${category.name} Workflows | Enterprise AI Automation | skills.rest`,
-        description: `Discover powerful Claude Skills designed for ${category.name} workflows. Automate tasks, enhance productivity, and streamline operations with AI-powered tools for ${category.name} professionals.`,
+        title: `Agent skills for ${category.name} Workflows | Enterprise AI Automation | skills.rest`,
+        description: `Discover powerful Agent skills designed for ${category.name} workflows. Automate tasks, enhance productivity, and streamline operations with AI-powered tools for ${category.name} professionals.`,
         alternates: {
             canonical: `/category/${slug}`,
         },
         openGraph: {
-            title: `Claude Skills for ${category.name} | skills.rest`,
+            title: `Agent skills for ${category.name} | skills.rest`,
             description: `Automate ${category.name} workflows with Claude AI Skills`,
             type: 'website',
         },
         twitter: {
             card: 'summary_large_image',
-            title: `Claude Skills for ${category.name} | skills.rest`,
+            title: `Agent skills for ${category.name} | skills.rest`,
             description: `Automate ${category.name} workflows with Claude AI Skills`,
         },
     };

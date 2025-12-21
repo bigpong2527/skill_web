@@ -286,7 +286,7 @@ export default function PrivacyPage() {
                     <p className="text-slate-600 dark:text-slate-400">
                         We believe privacy is a fundamental right. We are committed to being transparent about our data practices,
                         giving you control over your information, and continuously improving our privacy protections. Your trust is
-                        essential to our mission of building the best Claude skills discovery platform.
+                        essential to our mission of building the best Agent skills discovery platform.
                     </p>
                 </section>
             </div>

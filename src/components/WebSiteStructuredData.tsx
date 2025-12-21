@@ -6,7 +6,7 @@ export default function WebSiteStructuredData() {
         '@context': 'https://schema.org',
         '@type': 'WebSite',
         name: 'skills.rest',
-        alternateName: 'Claude Skills Library',
+        alternateName: 'Agent skills Library',
         url: 'https://skills.rest',
         description: 'The ultimate registry for Claude AI capabilities, tools, and automation skills',
         potentialAction: {

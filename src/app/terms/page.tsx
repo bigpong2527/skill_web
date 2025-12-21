@@ -31,10 +31,10 @@ export default function TermsPage() {
                         skills.rest is a discovery and distribution platform for Claude AI skills. We provide:
                     </p>
                     <ul className="list-disc pl-6 space-y-2 text-slate-600 dark:text-slate-400">
-                        <li>A curated directory of Claude skills across various professional categories</li>
+                        <li>A curated directory of Agent skills across various professional categories</li>
                         <li>Tools and resources for skill discovery, comparison, and installation</li>
-                        <li>A platform for developers to share their Claude skills with the community</li>
-                        <li>Documentation and guides to help users leverage Claude skills effectively</li>
+                        <li>A platform for developers to share their Agent skills with the community</li>
+                        <li>Documentation and guides to help users leverage Agent skills effectively</li>
                     </ul>
                 </section>
 

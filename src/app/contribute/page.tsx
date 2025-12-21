@@ -7,7 +7,7 @@ export default function ContributePage() {
 
             <div className="prose dark:prose-invert max-w-none">
                 <p className="text-xl text-slate-600 dark:text-slate-400 mb-8 leading-relaxed">
-                    Join our growing community of developers and share your Claude Skills with thousands of users worldwide.
+                    Join our growing community of developers and share your Agent skills with thousands of users worldwide.
                     At skills.rest, we believe in the power of open collaboration and knowledge sharing.
                 </p>
 
