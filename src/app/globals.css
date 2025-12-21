@@ -1,0 +1,162 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* 默认浅色主题变量 */
+  /* 文字颜色: Slate-900 */
+  --foreground-rgb: 15, 23, 42;
+  /* 背景颜色: Slate-50 */
+  --background-start-rgb: 248, 250, 252;
+  --background-end-rgb: 248, 250, 252;
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background-color: #f8fafc;
+  /* 默认浅色背景 */
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+/* --- 核心视觉特效：噪点覆盖 (Digital Noise Overlay) --- */
+.noise-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  /* Ensure no interaction blocking */
+  z-index: 50;
+  opacity: 0.04;
+  /* Hardware acceleration to prevent repaints */
+  transform: translateZ(0);
+  will-change: transform;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+
+  /* Disable on mobile for better performance */
+  @media (max-width: 768px) {
+    display: none;
+  }
+}
+
+/* --- 自定义滚动条 (Custom Scrollbar) --- */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f8fafc;
+  /* 浅色轨道 */
+}
+
+/* 暗色模式下的滚动条轨道适配 */
+.dark ::-webkit-scrollbar-track {
+  background: #020617;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  /* 浅色滑块 */
+  border-radius: 3px;
+}
+
+/* 暗色模式下的滚动条滑块适配 */
+.dark ::-webkit-scrollbar-thumb {
+  background: #334155;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+}
+
+/* --- Logo 动画 --- */
+.logo-container {
+  display: flex;
+  align-items: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.animated-bridge {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  width: 0.3em;
+  animation: bridge-animation 20s infinite;
+  transition: width 0.8s cubic-bezier(0.86, 0, 0.07, 1), margin 0.8s cubic-bezier(0.86, 0, 0.07, 1);
+}
+
+.dot,
+.slogan-part {
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.dot {
+  animation: dot-animation 20s infinite;
+}
+
+.slogan-part {
+  opacity: 0;
+  position: absolute;
+  animation: slogan-animation 20s infinite;
+}
+
+@keyframes bridge-animation {
+
+  0%,
+  45%,
+  100% {
+    width: 0.3em;
+    margin: 0;
+  }
+
+  50%,
+  95% {
+    width: 4.5em;
+    margin: 0 0.3em;
+  }
+}
+
+@keyframes dot-animation {
+
+  0%,
+  45%,
+  100% {
+    opacity: 1;
+  }
+
+  50%,
+  95% {
+    opacity: 0;
+  }
+}
+
+@keyframes slogan-animation {
+
+  0%,
+  50% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  55%,
+  90% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  95%,
+  100% {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+}

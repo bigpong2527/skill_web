@@ -1,0 +1,9 @@
+name = "skills-rest"
+compatibility_date = "2024-09-23"
+compatibility_flags = ["nodejs_compat"]
+pages_build_output_dir = ".vercel/output/static"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "skills-rest-db"
+database_id = "36a90f93-bb89-4f66-a5f5-05fc12d47295"
