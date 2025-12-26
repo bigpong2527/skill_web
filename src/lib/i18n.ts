@@ -13,7 +13,7 @@ const dictionary: Dictionary = {
   'nav.new_arrivals': { en: 'New Arrivals', cn: '最新发布' },
 
   // --- Home Hero ---
-  'home.hero.title': { en: 'Agent skills Library', cn: 'Claude 技能库' },
+  'home.hero.title': { en: 'Agent skills Library', cn: '代理技能库' },
   'home.hero.stats_suffix': { en: 'Skills Included', cn: '个已收录技能' },
   'home.hero.search_placeholder': { en: "Search for 'data analysis', 'web scraping'...", cn: "搜索 '数据分析', '网页抓取'..." },
   'home.hero.search_btn': { en: 'Search', cn: '搜索' },
