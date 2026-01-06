@@ -13,8 +13,22 @@ const dictionary: Dictionary = {
   'nav.new_arrivals': { en: 'New Arrivals', cn: '最新发布' },
 
   // --- Home Hero ---
-  'home.hero.title': { en: 'Agent skills Library', cn: '代理技能库' },
+  'home.hero.title': { en: 'Agent skills Library', cn: '智能体技能库' },
   'home.hero.stats_suffix': { en: 'Skills Included', cn: '个已收录技能' },
+  
+  // ✅ 核心按钮文案
+  'home.hero.btn.standby': { en: 'Vetted Skills on Standby', cn: '个已审查技能时刻待命' },
+  'home.hero.btn.hover': { en: 'Click to Equip Agent', cn: '点击一键装备 Agent' },
+  'home.hero.btn.copied': { en: 'Install Command Copied!', cn: '安装指令已复制！' },
+  
+  // ✅ 核心背书文案 (Safe, Light, Free)
+  'home.hero.trust.safe': { en: 'Vetted & Safe', cn: '安全' },
+  'home.hero.trust.light': { en: 'Zero Bloat', cn: '轻量' },
+  'home.hero.trust.free': { en: '100% Free', cn: '免费' },
+
+  // ✅ 复制后的操作指引
+  'home.hero.instruction.paste': { en: '👉 Now paste into your terminal to install', cn: '👉 请粘贴到终端运行以完成安装' },
+
   'home.hero.search_placeholder': { en: "Search for 'data analysis', 'web scraping'...", cn: "搜索 '数据分析', '网页抓取'..." },
   'home.hero.search_btn': { en: 'Search', cn: '搜索' },
   'home.hero.suggested': { en: 'Suggested:', cn: '推荐:' },
@@ -28,8 +42,8 @@ const dictionary: Dictionary = {
   'explore.sidebar.category': { en: 'Filter: Category', cn: '过滤: 分类' },
   'explore.sidebar.all_nodes': { en: 'All Skills', cn: '所有技能' },
   'explore.sidebar.origin': { en: 'Filter: Origin', cn: '过滤: 来源' },
-  'explore.sidebar.complexity': { en: 'Filter: Complexity', cn: '过滤: 复杂度' }, // ✅ 新增
-  'explore.sidebar.verified': { en: 'OFFICIAL', cn: '官方认证' }, // ✅ 修改
+  'explore.sidebar.complexity': { en: 'Filter: Complexity', cn: '过滤: 复杂度' },
+  'explore.sidebar.verified': { en: 'OFFICIAL', cn: '官方认证' },
   'explore.sidebar.community': { en: 'Community', cn: '社区贡献' },
   'explore.title': { en: 'Skill Explorer', cn: '技能探索' },
   'explore.subtitle.search': { en: 'Searching protocol for', cn: '正在搜索协议' },
