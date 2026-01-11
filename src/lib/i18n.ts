@@ -16,18 +16,22 @@ const dictionary: Dictionary = {
   'home.hero.title': { en: 'Agent skills Library', cn: '智能体技能库' },
   'home.hero.stats_suffix': { en: 'Skills Included', cn: '个已收录技能' },
   
-  // ✅ 核心按钮文案
-  'home.hero.btn.standby': { en: 'Vetted Skills on Standby', cn: '个已审查技能时刻待命' },
-  'home.hero.btn.hover': { en: 'Click to Equip Agent', cn: '点击一键装备 Agent' },
-  'home.hero.btn.copied': { en: 'Install Command Copied!', cn: '安装指令已复制！' },
+  // ✅ [修改] 按钮文案：安装以连接
+  'home.hero.btn.action': { en: 'Install to connect', cn: '安装以连接' },
+  'home.hero.btn.value_suffix': { en: 'Skills', cn: '个技能' },
   
-  // ✅ 核心背书文案 (Safe, Light, Free)
+  // ✅ [保留] 复制成功反馈
+  'home.hero.btn.copied.unix': { en: 'Bash Command Copied!', cn: 'Bash 指令已复制！' },
+  'home.hero.btn.copied.windows': { en: 'PowerShell Copied!', cn: 'PowerShell 指令已复制！' },
+  
+  // ✅ 核心背书文案
   'home.hero.trust.safe': { en: 'Vetted & Safe', cn: '安全' },
   'home.hero.trust.light': { en: 'Zero Bloat', cn: '轻量' },
   'home.hero.trust.free': { en: '100% Free', cn: '免费' },
 
-  // ✅ 复制后的操作指引
-  'home.hero.instruction.paste': { en: '👉 Now paste into your terminal to install', cn: '👉 请粘贴到终端运行以完成安装' },
+  // ✅ 粘贴指引
+  'home.hero.instruction.paste.unix': { en: '👉 Paste into Terminal (Bash/Zsh)', cn: '👉 请粘贴到终端 (Terminal) 运行' },
+  'home.hero.instruction.paste.windows': { en: '👉 Paste into PowerShell', cn: '👉 请粘贴到 PowerShell 运行' },
 
   'home.hero.search_placeholder': { en: "Search for 'data analysis', 'web scraping'...", cn: "搜索 '数据分析', '网页抓取'..." },
   'home.hero.search_btn': { en: 'Search', cn: '搜索' },
