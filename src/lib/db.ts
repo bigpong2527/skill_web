@@ -70,6 +70,17 @@ export const getRecentSkills = async (limit: number = 8): Promise<Skill[]> => {
   return results.map(normalizeSkill);
 };
 
+/**
+ * 专门获取 skills 表的自增 ID 最大值 (历史最大记录数)
+ * @returns 历史最大ID数
+ */
+export const getSkillsMaxId = async (): Promise<number> => {
+    // 查询 sqlite_master 中的 sqlite_sequence 表，获取 skills 表的 'seq' 字段
+    const results = await query(`SELECT seq FROM sqlite_sequence WHERE name = 'skills';`);
+    // 如果查询结果存在，返回 seq 字段的值；否则返回 0
+    return (results[0] as any)?.seq || 0;
+};
+
 export const getAllCategories = async (): Promise<Category[]> => {
   return STATIC_CATEGORIES.map(c => ({ ...c, description: null }));
 };
