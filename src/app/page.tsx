@@ -1,46 +1,60 @@
 import React from 'react';
 import Link from 'next/link';
-import { getHotSkills, getRecentSkills, getSkillsCount, getAllCategories } from '@/lib/db';
+// ❌ 必须确保同时引入了 getSkillsCount 和 getSkillsMaxId
+import { getHotSkills, getRecentSkills, getAllCategories, getSkillsMaxId } from '@/lib/db'; 
 import SkillCard from '@/components/client/SkillCard';
 import HomeHero from '@/components/client/HomeHero';
 import HomeCategories from '@/components/client/HomeCategories';
 import SectionHeader from '@/components/client/SectionHeader';
 import WebSiteStructuredData from '@/components/WebSiteStructuredData';
+import { Metadata } from 'next'; // 确保引入 Metadata
 
 export const runtime = 'edge';
 
 export const revalidate = 3600;
 
-export async function generateMetadata() {
-    const totalSkills = await getSkillsCount();
+export async function generateMetadata(): Promise<Metadata> {
+    // 🔥 使用 getSkillsMaxId 获取历史最大 ID (28810)
+    const totalSkills = await getSkillsMaxId();
 
     return {
         title: 'Agent skills Library | skills.rest',
-        // ✅ 更新 Description，使用动态数字
+        // ✅ 更新 Description，使用 MaxId
         description: `Instantly deploy ${totalSkills}+ Agent skills with one click. The definitive library for Claude code skills, agent skills, and automation workflows—ready to run in minutes.`,
+        metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://skills.rest'),
         alternates: {
             canonical: '/',
         },
         openGraph: {
             title: 'Agent skills Library | skills.rest',
-            // ✅ 更新 OG Description
             description: `Instantly deploy ${totalSkills}+ Agent skills with one click. The definitive library for Claude code skills, agent skills, and automation workflows—ready to run in minutes.`,
+            url: 'https://skills.rest',
+            siteName: 'skills.rest',
             type: 'website',
+            images: [
+                {
+                    url: '/og-image.png',
+                    width: 1200,
+                    height: 630,
+                    alt: 'Agent skills Library',
+                },
+            ],
         },
         twitter: {
             card: 'summary_large_image',
             title: 'Agent skills Library | skills.rest',
-            // ✅ 更新 Twitter Description
             description: `Instantly deploy ${totalSkills}+ Agent skills with one click. The definitive library for Claude code skills, agent skills, and automation workflows—ready to run in minutes.`,
+            images: ['/og-image.png'],
         },
     };
 }
 
 export default async function HomePage() {
+    // 🔥 使用 getSkillsMaxId 替代 getSkillsCount
     const [hotSkills, recentSkills, totalSkills, categories] = await Promise.all([
         getHotSkills(8),
         getRecentSkills(8),
-        getSkillsCount(),
+        getSkillsMaxId(), // <--- 关键修改点
         getAllCategories()
     ]);
 
@@ -48,6 +62,7 @@ export default async function HomePage() {
         <main className="min-h-screen pb-20 selection:bg-blue-500/30">
             <WebSiteStructuredData />
 
+            {/* totalSkills 值为 28810 */}
             <HomeHero totalSkills={totalSkills} />
 
             <div className="container mx-auto px-4">
