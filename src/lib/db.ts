@@ -3,25 +3,32 @@ import { cache } from 'react';
 import { Skill, Category, Keyword } from '../types';
 import { STATIC_CATEGORIES } from './staticData';
 
+// 这是一个工具库文件，声明 runtime 是安全的
 export const runtime = 'edge';
 
-// 环境变量 (用于本地开发降级)
+// --- 环境变量凭证 (用于 HTTP 降级模式，用于本地开发) ---
 const CLOUDFLARE_ACCOUNT_ID = process.env.CLOUDFLARE_ACCOUNT_ID;
 const CLOUDFLARE_API_TOKEN = process.env.CLOUDFLARE_API_TOKEN;
 const D1_DATABASE_ID = process.env.D1_DATABASE_ID;
 const D1_API_ENDPOINT = `https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/d1/database/${D1_DATABASE_ID}/query`;
 
+// --- 核心查询函数 ---
+
 async function query(sql: string, params: any[] = []): Promise<any[]> {
+  // 策略 1: 优先尝试 Cloudflare Pages 原生 Binding (生产环境最快)
   try {
     const ctx = getRequestContext();
     if (ctx && ctx.env && (ctx.env as any).DB) {
       const db = (ctx.env as any).DB as D1Database;
+      // PRAGMA foreign_keys = OFF; 在这里不应该被使用，因为这是应用查询。
+      // 它已经在上传数据时处理了。
       const stmt = db.prepare(sql).bind(...params);
       const { results } = await stmt.all();
       return results || [];
     }
   } catch (e) { /* ignore */ }
 
+  // 策略 2: HTTP API 降级 (用于本地开发)
   if (CLOUDFLARE_API_TOKEN && D1_DATABASE_ID && CLOUDFLARE_ACCOUNT_ID) {
     try {
       const response = await fetch(D1_API_ENDPOINT, {
@@ -34,13 +41,19 @@ async function query(sql: string, params: any[] = []): Promise<any[]> {
         cache: 'no-store'
       });
       const data = await response.json() as any;
+      if (!response.ok) {
+          console.error(`[D1 HTTP Error] ${response.status}: ${data.errors ? JSON.stringify(data.errors) : 'Unknown error'}`);
+      }
       if (data.success && data.result && data.result[0]) return data.result[0].results || [];
-    } catch (e) { console.error('[D1 HTTP Error]', e); }
+    } catch (e) { console.error('[D1 Connection Failed]', e); }
   }
   return [];
 }
 
-const normalizeSkill = (row: any): Skill => ({
+// --- 数据标准化工具 ---
+
+const normalizeSkill = (row: any): Skill => {
+  return {
     ...row,
     downloads: Number(row.downloads) || 0,
     card_clicks: Number(row.card_clicks) || 0,
@@ -53,12 +66,24 @@ const normalizeSkill = (row: any): Skill => ({
     components: row.components ? String(row.components).trim() : null,
     keywords: row.keywords ? (Array.isArray(row.keywords) ? row.keywords : String(row.keywords).split(',').map((s: string) => s.trim())) : [],
     category_slug: row.category_slug || undefined,
-});
+  };
+};
+
+// --- 导出数据服务 ---
 
 export const getSkillsCount = async (): Promise<number> => {
   const results = await query(`SELECT count(*) as total FROM skills`);
   return (results[0] as any)?.total || 0;
 };
+
+/**
+ * 获取 skills 表的自增 ID 最大值 (历史最大记录数)
+ */
+export const getSkillsMaxId = async (): Promise<number> => {
+    const results = await query(`SELECT seq FROM sqlite_sequence WHERE name = 'skills';`);
+    return (results[0] as any)?.seq || 0;
+};
+
 
 export const getHotSkills = async (limit: number = 8): Promise<Skill[]> => {
   const results = await query(`SELECT * FROM skills ORDER BY hotness_score DESC, created_at ASC LIMIT ?`, [limit]);
@@ -68,17 +93,6 @@ export const getHotSkills = async (limit: number = 8): Promise<Skill[]> => {
 export const getRecentSkills = async (limit: number = 8): Promise<Skill[]> => {
   const results = await query(`SELECT * FROM skills ORDER BY created_at DESC LIMIT ?`, [limit]);
   return results.map(normalizeSkill);
-};
-
-/**
- * 专门获取 skills 表的自增 ID 最大值 (历史最大记录数)
- * @returns 历史最大ID数
- */
-export const getSkillsMaxId = async (): Promise<number> => {
-    // 查询 sqlite_master 中的 sqlite_sequence 表，获取 skills 表的 'seq' 字段
-    const results = await query(`SELECT seq FROM sqlite_sequence WHERE name = 'skills';`);
-    // 如果查询结果存在，返回 seq 字段的值；否则返回 0
-    return (results[0] as any)?.seq || 0;
 };
 
 export const getAllCategories = async (): Promise<Category[]> => {
@@ -119,7 +133,7 @@ export interface SkillFilters {
   offset?: number;
 }
 
-// 🔥 FTS5 优化版本
+// FTS5 优化版本
 export const filterSkills = async (filters: SkillFilters): Promise<Skill[]> => {
   let sql = "SELECT s.* FROM skills s";
   const params: any[] = [];
@@ -146,18 +160,20 @@ export const filterSkills = async (filters: SkillFilters): Promise<Skill[]> => {
   if (filters.authorType) { conditions.push('s.author_type = ?'); params.push(filters.authorType); }
   if (filters.complexity) { conditions.push('s.complexity = ?'); params.push(filters.complexity); }
 
-  // 🔥 搜索优化核心
-  if (filters.searchQuery && filters.searchQuery.trim()) {
+  // 🔥 搜索优化核心：只有搜索词存在且非空时，才走 FTS5 逻辑
+  if (filters.searchQuery && filters.searchQuery.trim().length > 0) {
     const searchTerm = filters.searchQuery.trim().replace(/"/g, '');
+    
+    // FTS Term: "query"*
     const ftsTerm = `"${searchTerm}"*`; 
     
-    // 查索引表
+    // A. 查索引表 (低成本)
     const ftsSearchSql = `SELECT slug, author_name FROM skills_fts WHERE skills_fts MATCH ? LIMIT 100`;
     const ftsResults = await query(ftsSearchSql, [ftsTerm]);
 
     if (ftsResults.length === 0) return []; 
 
-    // 构造精确查询条件
+    // B. 构造精确查询条件
     const slugAuthorPairs = ftsResults.map((r: any) => ({ slug: r.slug, author: r.author_name }));
     const orConditions = slugAuthorPairs.map(() => `(s.slug = ? AND s.author_name = ?)`);
     conditions.push(`(${orConditions.join(' OR ')})`);
@@ -177,7 +193,7 @@ export const filterSkills = async (filters: SkillFilters): Promise<Skill[]> => {
   const results = await query(sql, params);
   const skills = results.map(normalizeSkill);
 
-  // 去重
+  // 最终去重
   const uniqueSkills = Array.from(new Map(skills.map(skill => [skill.id, skill])).values());
   return uniqueSkills;
 };
