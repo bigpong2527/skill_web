@@ -74,9 +74,6 @@ export const getSkillsCount = async (): Promise<number> => {
   return (results[0] as any)?.total || 0;
 };
 
-/**
- * 获取 skills 表的自增 ID 最大值 (历史最大记录数)
- */
 export const getSkillsMaxId = async (): Promise<number> => {
     const results = await query(`SELECT seq FROM sqlite_sequence WHERE name = 'skills';`);
     return (results[0] as any)?.seq || 0;
@@ -130,8 +127,7 @@ export interface SkillFilters {
   offset?: number;
 }
 
-// --- FTS5 Trigram 优化版搜索函数 ---
-
+// --- 终极混合搜索策略 (Hybrid Search + RowID Anchor) ---
 export const filterSkills = async (filters: SkillFilters): Promise<Skill[]> => {
   let sql = "SELECT s.* FROM skills s";
   const params: any[] = [];
@@ -158,42 +154,48 @@ export const filterSkills = async (filters: SkillFilters): Promise<Skill[]> => {
   if (filters.authorType) { conditions.push('s.author_type = ?'); params.push(filters.authorType); }
   if (filters.complexity) { conditions.push('s.complexity = ?'); params.push(filters.complexity); }
 
-  // 🔥🔥🔥 核心修改：适配 Trigram 全文搜索 🔥🔥🔥
+  // 🔥🔥🔥 核心修复逻辑 🔥🔥🔥
   if (filters.searchQuery && filters.searchQuery.trim().length > 0) {
-    // 1. 清理搜索词：移除双引号，防止破坏 FTS 语法
     const rawTerm = filters.searchQuery.trim().replace(/"/g, '');
     
-    // 2. 构造 Trigram 查询项
-    // Trigram 索引中，双引号包裹表示查找包含此字符序列的记录 (即子串匹配)
-    // 例如: "analy" 可以匹配 "analysis", "analyze"
-    const ftsTerm = `"${rawTerm}"`; 
-    
-    // 3. 查索引表 (成本极低，仅读取索引页)
-    // 限制 100 条结果以保证性能，只查询必要的关联字段
-    const ftsSearchSql = `SELECT slug, author_name FROM skills_fts WHERE skills_fts MATCH ? LIMIT 100`;
-    
-    try {
-        const ftsResults = await query(ftsSearchSql, [ftsTerm]);
-
-        // 如果索引没搜到，直接返回空，避免全表扫描
-        if (ftsResults.length === 0) return []; 
-
-        // 4. 构造精确查询条件 (回表查询)
-        // 使用 (slug, author_name) 复合键确保唯一性，利用 idx_skills_slug_author 索引
-        const slugAuthorPairs = ftsResults.map((r: any) => ({ slug: r.slug, author: r.author_name }));
-        const orConditions = slugAuthorPairs.map(() => `(s.slug = ? AND s.author_name = ?)`);
+    // 策略 A: 短词 (< 3 字符) -> 强制走 LIKE
+    // 解决 Trigram 无法索引 "测试"、"AI" 等短词的问题
+    if (rawTerm.length < 3) {
+        const likeTerm = `%${rawTerm}%`;
+        conditions.push(`(s.name LIKE ? OR s.tagline LIKE ? OR s.description LIKE ? OR s.slug LIKE ?)`);
+        params.push(likeTerm, likeTerm, likeTerm, likeTerm);
+    } 
+    // 策略 B: 长词 (>= 3 字符) -> 优先 FTS，失败兜底 LIKE
+    else {
+        const ftsTerm = `"${rawTerm}"`; 
         
-        if (orConditions.length > 0) {
-            conditions.push(`(${orConditions.join(' OR ')})`);
-            slugAuthorPairs.forEach(p => params.push(p.slug, p.author));
+        // ⚠️ 关键修复：只查询 rowid，不查询 slug/author_name
+        // 这避免了外部内容表在某些情况下返回 NULL 导致匹配失败的问题
+        const ftsSearchSql = `SELECT rowid FROM skills_fts WHERE skills_fts MATCH ? LIMIT 100`;
+        
+        try {
+            const ftsResults = await query(ftsSearchSql, [ftsTerm]);
+
+            if (ftsResults.length > 0) {
+                // FTS 命中：提取 ID 列表
+                const ids = ftsResults.map((r: any) => r.rowid);
+                conditions.push(`s.id IN (${ids.join(',')})`);
+            } else {
+                // FTS 未命中：兜底走 LIKE (防止索引偶发性不同步导致搜不到)
+                const likeTerm = `%${rawTerm}%`;
+                conditions.push(`(s.name LIKE ? OR s.tagline LIKE ? OR s.description LIKE ? OR s.slug LIKE ?)`);
+                params.push(likeTerm, likeTerm, likeTerm, likeTerm);
+            }
+        } catch (e) {
+            console.error("Search Error:", e);
+            // 报错兜底：走 LIKE
+            const likeTerm = `%${rawTerm}%`;
+            conditions.push(`(s.name LIKE ? OR s.tagline LIKE ? OR s.description LIKE ? OR s.slug LIKE ?)`);
+            params.push(likeTerm, likeTerm, likeTerm, likeTerm);
         }
-    } catch (e) {
-        console.error("Search Error:", e);
-        // 搜索出错时返回空数组，防止页面崩溃
-        return [];
     }
   }
-  // 🔥🔥🔥 核心修改结束 🔥🔥🔥
+  // 🔥🔥🔥 核心修复结束 🔥🔥🔥
 
   if (conditions.length > 0) { sql += ' WHERE ' + conditions.join(' AND '); }
 
@@ -207,7 +209,6 @@ export const filterSkills = async (filters: SkillFilters): Promise<Skill[]> => {
   const results = await query(sql, params);
   const skills = results.map(normalizeSkill);
 
-  // 最终去重 (防止 Join 导致的数据重复)
   const uniqueSkills = Array.from(new Map(skills.map(skill => [skill.id, skill])).values());
   return uniqueSkills;
 };
