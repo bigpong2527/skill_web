@@ -20,8 +20,6 @@ async function query(sql: string, params: any[] = []): Promise<any[]> {
     const ctx = getRequestContext();
     if (ctx && ctx.env && (ctx.env as any).DB) {
       const db = (ctx.env as any).DB as D1Database;
-      // PRAGMA foreign_keys = OFF; 在这里不应该被使用，因为这是应用查询。
-      // 它已经在上传数据时处理了。
       const stmt = db.prepare(sql).bind(...params);
       const { results } = await stmt.all();
       return results || [];
@@ -84,7 +82,6 @@ export const getSkillsMaxId = async (): Promise<number> => {
     return (results[0] as any)?.seq || 0;
 };
 
-
 export const getHotSkills = async (limit: number = 8): Promise<Skill[]> => {
   const results = await query(`SELECT * FROM skills ORDER BY hotness_score DESC, created_at ASC LIMIT ?`, [limit]);
   return results.map(normalizeSkill);
@@ -133,7 +130,8 @@ export interface SkillFilters {
   offset?: number;
 }
 
-// FTS5 优化版本
+// --- FTS5 Trigram 优化版搜索函数 ---
+
 export const filterSkills = async (filters: SkillFilters): Promise<Skill[]> => {
   let sql = "SELECT s.* FROM skills s";
   const params: any[] = [];
@@ -160,26 +158,42 @@ export const filterSkills = async (filters: SkillFilters): Promise<Skill[]> => {
   if (filters.authorType) { conditions.push('s.author_type = ?'); params.push(filters.authorType); }
   if (filters.complexity) { conditions.push('s.complexity = ?'); params.push(filters.complexity); }
 
-  // 🔥 搜索优化核心：只有搜索词存在且非空时，才走 FTS5 逻辑
+  // 🔥🔥🔥 核心修改：适配 Trigram 全文搜索 🔥🔥🔥
   if (filters.searchQuery && filters.searchQuery.trim().length > 0) {
-    const searchTerm = filters.searchQuery.trim().replace(/"/g, '');
+    // 1. 清理搜索词：移除双引号，防止破坏 FTS 语法
+    const rawTerm = filters.searchQuery.trim().replace(/"/g, '');
     
-    // FTS Term: "query"*
-    const ftsTerm = `"${searchTerm}"*`; 
+    // 2. 构造 Trigram 查询项
+    // Trigram 索引中，双引号包裹表示查找包含此字符序列的记录 (即子串匹配)
+    // 例如: "analy" 可以匹配 "analysis", "analyze"
+    const ftsTerm = `"${rawTerm}"`; 
     
-    // A. 查索引表 (低成本)
+    // 3. 查索引表 (成本极低，仅读取索引页)
+    // 限制 100 条结果以保证性能，只查询必要的关联字段
     const ftsSearchSql = `SELECT slug, author_name FROM skills_fts WHERE skills_fts MATCH ? LIMIT 100`;
-    const ftsResults = await query(ftsSearchSql, [ftsTerm]);
-
-    if (ftsResults.length === 0) return []; 
-
-    // B. 构造精确查询条件
-    const slugAuthorPairs = ftsResults.map((r: any) => ({ slug: r.slug, author: r.author_name }));
-    const orConditions = slugAuthorPairs.map(() => `(s.slug = ? AND s.author_name = ?)`);
-    conditions.push(`(${orConditions.join(' OR ')})`);
     
-    slugAuthorPairs.forEach(p => params.push(p.slug, p.author));
+    try {
+        const ftsResults = await query(ftsSearchSql, [ftsTerm]);
+
+        // 如果索引没搜到，直接返回空，避免全表扫描
+        if (ftsResults.length === 0) return []; 
+
+        // 4. 构造精确查询条件 (回表查询)
+        // 使用 (slug, author_name) 复合键确保唯一性，利用 idx_skills_slug_author 索引
+        const slugAuthorPairs = ftsResults.map((r: any) => ({ slug: r.slug, author: r.author_name }));
+        const orConditions = slugAuthorPairs.map(() => `(s.slug = ? AND s.author_name = ?)`);
+        
+        if (orConditions.length > 0) {
+            conditions.push(`(${orConditions.join(' OR ')})`);
+            slugAuthorPairs.forEach(p => params.push(p.slug, p.author));
+        }
+    } catch (e) {
+        console.error("Search Error:", e);
+        // 搜索出错时返回空数组，防止页面崩溃
+        return [];
+    }
   }
+  // 🔥🔥🔥 核心修改结束 🔥🔥🔥
 
   if (conditions.length > 0) { sql += ' WHERE ' + conditions.join(' AND '); }
 
@@ -193,7 +207,7 @@ export const filterSkills = async (filters: SkillFilters): Promise<Skill[]> => {
   const results = await query(sql, params);
   const skills = results.map(normalizeSkill);
 
-  // 最终去重
+  // 最终去重 (防止 Join 导致的数据重复)
   const uniqueSkills = Array.from(new Map(skills.map(skill => [skill.id, skill])).values());
   return uniqueSkills;
 };
