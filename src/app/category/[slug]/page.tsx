@@ -8,11 +8,7 @@ import CategorySkillsList from '@/components/client/CategorySkillsList';
 import CategoryStructuredData from '@/components/CategoryStructuredData';
 import { t } from '@/lib/i18n';
 
-// ✅ 强制使用 Edge Runtime
 export const runtime = 'edge';
-
-// ✅ ISR 配置：1小时更新一次
-// 平衡了 SEO、首屏加载速度和数据新鲜度
 export const revalidate = 3600;
 
 interface PageProps {
@@ -31,16 +27,20 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
         };
     }
 
+    // ✅ 修复：使用绝对路径作为 Canonical URL
+    const baseUrl = 'https://skills.rest';
+
     return {
         title: `Agent skills for ${category.name} Workflows | Enterprise AI Automation | skills.rest`,
         description: `Discover powerful Agent skills designed for ${category.name} workflows. Automate tasks, enhance productivity, and streamline operations with AI-powered tools for ${category.name} professionals.`,
         alternates: {
-            canonical: `/category/${slug}`,
+            canonical: `${baseUrl}/category/${slug}`,
         },
         openGraph: {
             title: `Agent skills for ${category.name} | skills.rest`,
             description: `Automate ${category.name} workflows with Claude AI Skills`,
             type: 'website',
+            url: `${baseUrl}/category/${slug}`,
         },
         twitter: {
             card: 'summary_large_image',
@@ -53,7 +53,6 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function CategoryPage({ params }: PageProps) {
     const { slug } = await params;
 
-    // 并行获取数据：前12个技能 + 所有分类信息
     const [skills, categories] = await Promise.all([
         filterSkills({ categorySlug: slug, limit: 12 }),
         getAllCategories()
@@ -88,7 +87,6 @@ export default async function CategoryPage({ params }: PageProps) {
 
                 {/* Skills List Section */}
                 {skills.length > 0 ? (
-                    // ✅ 传递初始数据给客户端组件，后续加载由组件内的 Server Action 触发
                     <CategorySkillsList
                         initialSkills={skills}
                         categorySlug={slug}
