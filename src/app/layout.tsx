@@ -18,19 +18,20 @@ const jetbrainsMono = JetBrains_Mono({
     display: 'swap',
 });
 
+// ✅ 确保这里是绝对路径，这对于 SEO 至关重要
+const siteUrl = 'https://skills.rest';
+
 export const metadata: Metadata = {
     title: 'Agent skills Library | skills.rest',
-    // ✅ 更新 Description
     description: 'Instantly deploy 8,000+ Agent skills with one click. The definitive library for Claude code skills, agent skills, and automation workflows—ready to run in minutes.',
-    metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://skills.rest'),
+    metadataBase: new URL(siteUrl), // ✅ 强制使用生产域名
     alternates: {
         canonical: '/',
     },
     openGraph: {
         title: 'Agent skills Library | skills.rest',
-        // ✅ 更新 OG Description
         description: 'Instantly deploy 8,000+ Agent skills with one click. The definitive library for Claude code skills, agent skills, and automation workflows—ready to run in minutes.',
-        url: 'https://skills.rest',
+        url: siteUrl,
         siteName: 'skills.rest',
         type: 'website',
         images: [
@@ -45,7 +46,6 @@ export const metadata: Metadata = {
     twitter: {
         card: 'summary_large_image',
         title: 'Agent skills Library | skills.rest',
-        // ✅ 更新 Twitter Description
         description: 'Instantly deploy 8,000+ Agent skills with one click. The definitive library for Claude code skills, agent skills, and automation workflows—ready to run in minutes.',
         images: ['/og-image.png'],
     },
