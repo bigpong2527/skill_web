@@ -10,13 +10,7 @@ import MarkdownView from '@/components/server/MarkdownView';
 import NavigationBar from '@/components/client/NavigationBar';
 import StructuredData from '@/components/StructuredData';
 
-// ✅ 必须保留 Edge Runtime
 export const runtime = 'edge';
-
-// ✅ 永久缓存策略 (ISR)
-// 设置为 1 年 (31536000 秒)。
-// 效果：页面生成一次后，几乎永久缓存在 CDN 上。
-// 只有当你重新部署项目时，缓存才会被清除。
 export const revalidate = 31536000;
 
 interface PageProps {
@@ -38,15 +32,21 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     const categories = await getSkillCategories(skill.id);
     const primaryCategory = categories[0];
     const problemSolutionStatement = skill.tagline ? skill.tagline.replace(/\.$/, '') : `A powerful skill for ${skill.name}`;
+    
+    // ✅ 修复：使用硬编码的生产环境域名，确保 Canonical 绝对准确
+    const baseUrl = 'https://skills.rest';
 
     return {
         title: `${skill.name}: ${problemSolutionStatement} | skills.rest`,
         description: `Use the ${skill.name} skill to effortlessly ${problemSolutionStatement.toLowerCase()}. A reliable, executable skill for Claude, contributed by ${skill.author_name}${primaryCategory ? `, designed for ${primaryCategory.name} workflows` : ''}.`,
-        alternates: { canonical: `/skill/${skill.slug}` },
+        alternates: { 
+            canonical: `${baseUrl}/skill/${skill.slug}` 
+        },
         openGraph: {
             title: `${skill.name}: ${problemSolutionStatement} `,
             description: skill.tagline || problemSolutionStatement,
             type: 'website',
+            url: `${baseUrl}/skill/${skill.slug}`,
             images: [{ url: '/og-image.png', width: 1200, height: 630, alt: skill.name }],
         },
         twitter: {
