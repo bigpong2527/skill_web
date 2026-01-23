@@ -15,27 +15,34 @@ interface PageProps {
 
 export async function generateMetadata({ searchParams }: PageProps): Promise<Metadata> {
     const params = await searchParams;
+    
+    // 🔍 严格检查：是否存在任何筛选参数
     const query = typeof params.q === 'string' ? params.q : '';
+    const hasCategory = typeof params.category === 'string';
+    const hasAuthorType = typeof params.authorType === 'string';
+    const hasComplexity = typeof params.complexity === 'string';
+    const hasFilter = typeof params.filter === 'string'; // 处理首页传来的 ?filter=recent
 
-    if (query) {
+    // 🛑 SEO 核心修复：
+    // 如果存在任何搜索词或筛选参数，强制 Google 不要索引此页面。
+    // 这告诉 Google："这个页面只是筛选结果，不是核心内容，请去索引 /skill/[slug] 详情页"。
+    if (query || hasCategory || hasAuthorType || hasComplexity || hasFilter) {
         return {
-            title: `Search "${query}" - Agent skills | skills.rest`,
-            description: `Search results for "${query}" in the Agent skills library. Find AI tools and automation capabilities matching your needs.`,
-            alternates: {
-                canonical: `/explore`,
-            },
+            title: query ? `Search "${query}" - Agent skills | skills.rest` : 'Filtered Skills | skills.rest',
+            description: 'Filtered view of the Agent skills library.',
             robots: {
-                index: false,
-                follow: true,
+                index: false, // ❌ 禁止索引筛选结果页
+                follow: true, // ✅ 允许顺着链接爬取详情页
             },
         };
     }
 
+    // 纯净的 /explore 页面允许索引
     return {
         title: 'Explore Agent skills | Ultimate Skills Library | skills.rest',
         description: 'Browse the complete Agent skills library with 2000+ verified tools. Search, filter, and discover AI automation capabilities for every workflow.',
         alternates: {
-            canonical: '/explore',
+            canonical: 'https://skills.rest/explore',
         },
     };
 }
@@ -45,7 +52,7 @@ export default async function ExplorePage({ searchParams }: PageProps) {
     const query = typeof params.q === 'string' ? params.q : '';
     const categorySlug = typeof params.category === 'string' ? params.category : '';
     const authorType = typeof params.authorType === 'string' ? params.authorType : undefined;
-    const complexity = typeof params.complexity === 'string' ? params.complexity : undefined; // ✅ 新增
+    const complexity = typeof params.complexity === 'string' ? params.complexity : undefined;
 
     // Fetch data
     const [initialSkills, categories] = await Promise.all([
@@ -53,7 +60,7 @@ export default async function ExplorePage({ searchParams }: PageProps) {
             searchQuery: query,
             categorySlug: categorySlug || undefined,
             authorType: authorType,
-            complexity: complexity, // ✅ 传递给 filterSkills
+            complexity: complexity,
             limit: 12,
         }),
         getAllCategories()
@@ -72,7 +79,7 @@ export default async function ExplorePage({ searchParams }: PageProps) {
                         currentCategory={categorySlug}
                         currentQuery={query}
                         authorType={authorType}
-                        complexity={complexity} // ✅ 传递给 Sidebar
+                        complexity={complexity}
                     />
 
                     {/* Main Grid */}
@@ -100,7 +107,7 @@ export default async function ExplorePage({ searchParams }: PageProps) {
                                 category={categorySlug}
                                 searchQuery={query}
                                 authorType={authorType}
-                                complexity={complexity} // ✅ 传递给 SkillsGrid
+                                complexity={complexity}
                             />
                         ) : (
                             <div className="flex flex-col items-center justify-center py-24 text-center border border-dashed border-slate-300 dark:border-slate-800 rounded-2xl bg-slate-50 dark:bg-slate-900/30">
