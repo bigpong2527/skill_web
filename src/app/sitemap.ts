@@ -9,7 +9,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // IMPORTANT: Limit to 10,000 skills to prevent Edge Runtime timeout
     // Google allows up to 50,000 URLs per sitemap, but we stay conservative
     // If skill count exceeds 10,000, implement sitemap index with multiple sitemaps
-    const SITEMAP_SKILL_LIMIT = 10000;
+    const SITEMAP_SKILL_LIMIT = 50000;
 
     // Fetch all skills with timestamps and categories
     const [skillsData, categories] = await Promise.all([
