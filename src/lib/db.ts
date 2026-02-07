@@ -75,8 +75,8 @@ export const getSkillsCount = async (): Promise<number> => {
 };
 
 export const getSkillsMaxId = async (): Promise<number> => {
-    const results = await query(`SELECT seq FROM sqlite_sequence WHERE name = 'skills';`);
-    return (results[0] as any)?.seq || 0;
+    const results = await query(`SELECT COUNT(id) as total FROM skills;`);
+    return (results[0] as any)?.total || 0;
 };
 
 export const getHotSkills = async (limit: number = 8): Promise<Skill[]> => {
