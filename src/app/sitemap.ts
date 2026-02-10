@@ -22,5 +22,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap[]> {
     lastModified: new Date(),
     changeFrequency: 'daily',  // Add a default value for changeFrequency
     priority: 1.0,             // Add a default value for priority
+    alternates: [],            // Optional empty array for alternates (if needed)
+    images: [],               // Optional empty array for images (if needed)
+    videos: [],               // Optional empty array for videos (if needed)
   }));
 }
