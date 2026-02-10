@@ -16,8 +16,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap[]> {
   const chunksForSkills = Math.ceil(totalSkills / SITEMAP_URL_LIMIT);
   const totalChunks = Math.max(1, chunksForSkills);
 
+  // Return the Sitemap index with proper fields.
   return Array.from({ length: totalChunks }, (_, i) => ({
     url: `${BASE_URL}/sitemap/${i}.xml`,
     lastModified: new Date(),
+    changeFrequency: 'daily',  // Add a default value for changeFrequency
+    priority: 1.0,             // Add a default value for priority
   }));
 }
