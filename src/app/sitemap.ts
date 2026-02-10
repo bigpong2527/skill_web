@@ -8,7 +8,7 @@ const SITEMAP_URL_LIMIT = 50000;
 
 // `sitemap.xml` becomes a sitemap index that points to chunked sitemaps.
 // This avoids Google's hard limit of 50,000 URLs per single sitemap file.
-export default async function sitemap(): Promise<MetadataRoute.SitemapIndex> {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap[]> {
   // Count skill detail pages; other fixed pages are negligible and will be included in chunk 0.
   const totalSkills = await getSkillsCount();
 
