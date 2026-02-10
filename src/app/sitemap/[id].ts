@@ -43,24 +43,36 @@ export default async function sitemap({ params }: PageProps): Promise<MetadataRo
           lastModified: new Date(),
           changeFrequency: 'daily',
           priority: 1.0,
+          alternates: [],
+          images: [],
+          videos: [],
         },
         {
           url: `${BASE_URL}/explore`,
           lastModified: new Date(),
           changeFrequency: 'daily',
           priority: 0.9,
+          alternates: [],
+          images: [],
+          videos: [],
         },
         {
           url: `${BASE_URL}/categories`,
           lastModified: new Date(),
           changeFrequency: 'weekly',
           priority: 0.8,
+          alternates: [],
+          images: [],
+          videos: [],
         },
         ...categories.map((cat) => ({
           url: `${BASE_URL}/category/${cat.slug}`,
           lastModified: new Date(),
           changeFrequency: 'daily' as const,
           priority: 0.7,
+          alternates: [],
+          images: [],
+          videos: [],
         })),
       ]
     : [];
@@ -74,6 +86,9 @@ export default async function sitemap({ params }: PageProps): Promise<MetadataRo
       lastModified: new Date(skill.updated_at),
       changeFrequency: daysSinceUpdate < 7 ? ('daily' as const) : ('weekly' as const),
       priority: 0.6,
+      alternates: [],
+      images: [],
+      videos: [],
     };
   });
 
