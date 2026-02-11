@@ -111,9 +111,12 @@ export const getSkillKeywords = cache(async (skillId: number): Promise<Keyword[]
   return results.map((k: any) => ({ id: k.id, name: k.name }));
 });
 
-export const getAllSkillsWithTimestamps = async (limit?: number): Promise<Array<{ slug: string, updated_at: string }>> => {
-  const sql = limit ? `SELECT slug, updated_at FROM skills ORDER BY created_at DESC LIMIT ?` : `SELECT slug, updated_at FROM skills ORDER BY created_at DESC`;
-  const results = await query(sql, limit ? [limit] : []);
+// 新逻辑：参数 limit 变为必填，新增 offset 参数（默认为 0）
+export const getAllSkillsWithTimestamps = async (limit: number, offset: number = 0): Promise<Array<{ slug: string, updated_at: string }>> => {
+  // SQL 语句固定包含 LIMIT 和 OFFSET，这是解决内存溢出的关键
+  const sql = `SELECT slug, updated_at FROM skills ORDER BY created_at DESC LIMIT ? OFFSET ?`;
+  // 参数数组固定包含 limit 和 offset
+  const results = await query(sql, [limit, offset]);
   return results.map((r: any) => ({ slug: r.slug, updated_at: r.updated_at }));
 };
 
