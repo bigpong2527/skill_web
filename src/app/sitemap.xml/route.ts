@@ -3,7 +3,8 @@ import { getSkillsCount } from '@/lib/db';
 export const runtime = 'edge';
 
 const BASE_URL = 'https://skills.rest';
-const SITEMAP_URL_LIMIT = 50000;
+// ✅ 必须与 sitemap-index/[id]/route.ts 保持一致
+const SITEMAP_URL_LIMIT = 10000;
 
 export async function GET() {
   const totalSkills = await getSkillsCount();
@@ -21,7 +22,8 @@ export async function GET() {
   return new Response(sitemapIndexXml, {
     headers: {
       'Content-Type': 'application/xml',
-      'Cache-Control': 'public, s-maxage=86400, stale-while-revalidate=3600',
+      // 索引文件缓存时间可以稍短，例如 1 小时
+      'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=600',
     },
   });
 }
