@@ -9,12 +9,11 @@ export async function GET() {
   const totalSkills = await getSkillsCount();
   const totalChunks = Math.max(1, Math.ceil(totalSkills / SITEMAP_URL_LIMIT));
 
-  // 构建标准的 sitemapindex 字符串
   const sitemapIndexXml = `<?xml version="1.0" encoding="UTF-8"?>
 <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   ${Array.from({ length: totalChunks }, (_, i) => `
   <sitemap>
-    <loc>${BASE_URL}/sitemap/${i}.xml</loc>
+    <loc>${BASE_URL}/sitemap-index/${i}.xml</loc>
     <lastmod>${new Date().toISOString()}</lastmod>
   </sitemap>`).join('')}
 </sitemapindex>`;
