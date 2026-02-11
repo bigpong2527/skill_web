@@ -5,24 +5,24 @@ export const runtime = 'edge';
 const BASE_URL = 'https://skills.rest';
 const SITEMAP_URL_LIMIT = 50000;
 
-type Props = {
-  params: Promise<{ id: string }>;
-};
-
-export async function GET(request: Request, { params }: Props) {
+export async function GET(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
   const { id } = await params;
-  // 移除 .xml 后缀，确保 parseInt 正常工作
-  const cleanId = id.replace('.xml', '');
+  
+  // 关键修复：处理各种可能的后缀情况 (0, 0.xml, 0.xml/)
+  const cleanId = id.replace('.xml', '').replace('/', '');
   const chunkId = Number.parseInt(cleanId, 10);
 
   if (isNaN(chunkId) || chunkId < 0) {
-    return new Response('Invalid Sitemap Chunk ID', { status: 400 });
+    return new Response('Invalid Chunk ID', { status: 400 });
   }
 
   const offset = chunkId * SITEMAP_URL_LIMIT;
   const includeStaticPages = chunkId === 0;
 
-  // 这里的 offset + limit 逻辑与数据库 helper 匹配
+  // 获取数据
   const [allSkillsUpToEnd, categories] = await Promise.all([
     getAllSkillsWithTimestamps(offset + SITEMAP_URL_LIMIT),
     includeStaticPages ? getAllCategories() : Promise.resolve([]),
@@ -30,6 +30,7 @@ export async function GET(request: Request, { params }: Props) {
 
   const skillsSlice = allSkillsUpToEnd.slice(offset, offset + SITEMAP_URL_LIMIT);
 
+  // 手动构建 XML
   const staticEntries = includeStaticPages
     ? [
         `<url><loc>${BASE_URL}</loc><lastmod>${new Date().toISOString()}</lastmod><changefreq>daily</changefreq><priority>1.0</priority></url>`,
