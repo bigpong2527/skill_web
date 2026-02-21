@@ -83,7 +83,7 @@ export const getSkillsMaxId = async (): Promise<number> => {
 };
 
 export const getHotSkills = async (limit: number = 8): Promise<Skill[]> => {
-  const results = await query(`SELECT * FROM skills ORDER BY hotness_score DESC, created_at ASC LIMIT ?`, [limit]);
+  const results = await query(`SELECT * FROM skills ORDER BY hotness_score DESC, created_at DESC LIMIT ?`, [limit]);
   return results.map(normalizeSkill);
 };
 
