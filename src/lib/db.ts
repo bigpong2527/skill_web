@@ -70,13 +70,16 @@ const normalizeSkill = (row: any): Skill => {
 // --- 导出数据服务 ---
 
 export const getSkillsCount = async (): Promise<number> => {
-  const results = await query(`SELECT count(*) as total FROM skills`);
-  return (results[0] as any)?.total || 0;
+  // ✅ 优化方案 C：读取独立计数表 (Rows Read: 1)
+  const results = await query(`SELECT value FROM site_stats WHERE key = 'skills_count'`);
+  return (results[0] as any)?.value || 0;
 };
 
 export const getSkillsMaxId = async (): Promise<number> => {
-    const results = await query(`SELECT COUNT(id) as total FROM skills;`);
-    return (results[0] as any)?.total || 0;
+  // ✅ 优化方案 C：读取独立计数表 (Rows Read: 1)
+  // 虽然函数名是 MaxId，但业务逻辑需要的是总数，且 ID 为雪花算法不可用，故此处也返回总数
+  const results = await query(`SELECT value FROM site_stats WHERE key = 'skills_count'`);
+  return (results[0] as any)?.value || 0;
 };
 
 export const getHotSkills = async (limit: number = 8): Promise<Skill[]> => {
