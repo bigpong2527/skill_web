@@ -133,23 +133,32 @@ export interface SkillFilters {
   offset?: number;
 }
 
-// --- 终极混合搜索策略 (Hybrid Search + RowID Anchor) ---
+// --- 终极混合搜索策略 (航天级防注入 + BM25 智能排序) ---
 export const filterSkills = async (filters: SkillFilters): Promise<Skill[]> => {
   let sql = "SELECT s.* FROM skills s";
   const params: any[] = [];
   const conditions: string[] = [];
   const joinedTables = new Set<string>();
+  
+  // 默认排序：完美命中你刚建好的 idx_skills_hotness_created 索引
+  let orderByClause = " ORDER BY s.hotness_score DESC, s.created_at DESC";
 
+  // 辅助函数：防止重复 JOIN 同一张表
   const ensureJoin = (joinSql: string, tableName: string) => {
-    if (!joinedTables.has(tableName)) { sql += joinSql; joinedTables.add(tableName); }
+    if (!joinedTables.has(tableName)) { 
+        sql += joinSql; 
+        joinedTables.add(tableName); 
+    }
   };
 
+  // 1. 处理分类筛选
   if (filters.categorySlug) {
     ensureJoin(` JOIN skill_categories sc ON s.id = sc.skill_id JOIN categories c ON sc.category_id = c.id`, 'categories');
     conditions.push('c.slug = ?');
     params.push(filters.categorySlug);
   }
 
+  // 2. 处理关键词筛选
   if (filters.keywords && filters.keywords.length > 0) {
     ensureJoin(` JOIN skill_keywords sk_f ON s.id = sk_f.skill_id JOIN keywords k_f ON sk_f.keyword_id = k_f.id`, 'keywords_filter');
     const placeholders = filters.keywords.map(() => '?').join(',');
@@ -157,64 +166,68 @@ export const filterSkills = async (filters: SkillFilters): Promise<Skill[]> => {
     params.push(...filters.keywords);
   }
 
-  if (filters.authorType) { conditions.push('s.author_type = ?'); params.push(filters.authorType); }
-  if (filters.complexity) { conditions.push('s.complexity = ?'); params.push(filters.complexity); }
+  // 3. 处理侧边栏筛选
+  if (filters.authorType) { 
+      conditions.push('s.author_type = ?'); 
+      params.push(filters.authorType); 
+  }
+  if (filters.complexity) { 
+      conditions.push('s.complexity = ?'); 
+      params.push(filters.complexity); 
+  }
 
-  // 🔥🔥🔥 核心修复逻辑 🔥🔥🔥
-  if (filters.searchQuery && filters.searchQuery.trim().length > 0) {
-    const rawTerm = filters.searchQuery.trim().replace(/"/g, '');
+  // 🔥🔥🔥 核心：全文搜索逻辑 🔥🔥🔥
+  if (filters.searchQuery && typeof filters.searchQuery === 'string') {
+    // 防御 1：截断超长恶意请求，防止正则回溯攻击耗尽 CPU
+    const rawQuery = filters.searchQuery.slice(0, 100);
     
-    // 策略 A: 短词 (< 3 字符) -> 强制走 LIKE
-    // 解决 Trigram 无法索引 "测试"、"AI" 等短词的问题
-    if (rawTerm.length < 3) {
-        const likeTerm = `%${rawTerm}%`;
-        conditions.push(`(s.name LIKE ? OR s.tagline LIKE ? OR s.description LIKE ? OR s.slug LIKE ?)`);
-        params.push(likeTerm, likeTerm, likeTerm, likeTerm);
-    } 
-    // 策略 B: 长词 (>= 3 字符) -> 优先 FTS，失败兜底 LIKE
-    else {
-        const ftsTerm = `"${rawTerm}"`; 
+    // 防御 2：极端清洗。只保留字母、数字、空格和连字符。抹杀一切可能导致 FTS 崩溃的特殊符号
+    const cleanTerm = rawQuery.replace(/[^a-zA-Z0-9\s\-]/g, ' ').trim().toLowerCase();
+    
+    if (cleanTerm.length > 0) {
+        // 构造智能查询：按空格分词，每个词加上前缀通配符，并用 AND 连接
+        // 例如输入 "data ana" -> 变成 '"data"* AND "ana"*'
+        const words = cleanTerm.split(/\s+/).filter(w => w.length > 0);
+        const ftsQuery = words.map(word => `"${word}"*`).join(' AND ');
         
-        // ⚠️ 关键修复：只查询 rowid，不查询 slug/author_name
-        // 这避免了外部内容表在某些情况下返回 NULL 导致匹配失败的问题
-        const ftsSearchSql = `SELECT rowid FROM skills_fts WHERE skills_fts MATCH ? LIMIT 100`;
+        // 核心：使用 JOIN 结合 BM25 算法。
+        // 权重分配：name(10分), tagline(5分), description(1分)
+        // 这样名字叫 Python 的技能，绝对会排在描述里提到 python 的技能前面
+        ensureJoin(` JOIN (
+            SELECT rowid, bm25(skills_fts, 10.0, 5.0, 1.0) as rank 
+            FROM skills_fts 
+            WHERE skills_fts MATCH ?
+            ORDER BY rank ASC 
+            LIMIT 300
+        ) fts ON s.id = fts.rowid`, 'fts_search');
         
-        try {
-            const ftsResults = await query(ftsSearchSql, [ftsTerm]);
-
-            if (ftsResults.length > 0) {
-                // FTS 命中：提取 ID 列表
-                const ids = ftsResults.map((r: any) => r.rowid);
-                conditions.push(`s.id IN (${ids.join(',')})`);
-            } else {
-                // FTS 未命中：兜底走 LIKE (防止索引偶发性不同步导致搜不到)
-                const likeTerm = `%${rawTerm}%`;
-                conditions.push(`(s.name LIKE ? OR s.tagline LIKE ? OR s.description LIKE ? OR s.slug LIKE ?)`);
-                params.push(likeTerm, likeTerm, likeTerm, likeTerm);
-            }
-        } catch (e) {
-            console.error("Search Error:", e);
-            // 报错兜底：走 LIKE
-            const likeTerm = `%${rawTerm}%`;
-            conditions.push(`(s.name LIKE ? OR s.tagline LIKE ? OR s.description LIKE ? OR s.slug LIKE ?)`);
-            params.push(likeTerm, likeTerm, likeTerm, likeTerm);
-        }
+        params.push(ftsQuery);
+        
+        // 覆盖默认排序：当有搜索词时，相关度(rank)优先
+        orderByClause = " ORDER BY fts.rank ASC";
+    } else {
+        // 防御 3：如果用户输入的都是垃圾符号（清洗后为空），直接阻断查询，防止全表扫描
+        conditions.push(`1 = 0`);
     }
   }
-  // 🔥🔥🔥 核心修复结束 🔥🔥🔥
 
-  if (conditions.length > 0) { sql += ' WHERE ' + conditions.join(' AND '); }
+  // 组装 WHERE 子句
+  if (conditions.length > 0) { 
+      sql += ' WHERE ' + conditions.join(' AND '); 
+  }
 
-  sql += ' ORDER BY s.hotness_score DESC, s.created_at DESC';
+  // 追加排序和分页
+  sql += orderByClause;
   
   const limit = filters.limit || 12;
   const offset = filters.offset || 0;
   sql += ` LIMIT ? OFFSET ?`;
   params.push(limit, offset);
 
+  // 执行查询并格式化结果
   const results = await query(sql, params);
   const skills = results.map(normalizeSkill);
 
-  const uniqueSkills = Array.from(new Map(skills.map(skill => [skill.id, skill])).values());
-  return uniqueSkills;
+  // 最终去重防线
+  return Array.from(new Map(skills.map(skill => [skill.id, skill])).values());
 };
