@@ -66,7 +66,8 @@ export default async function HomePage() {
             <div className="container mx-auto px-4">
                 <HomeCategories categories={categories} />
 
-                <section className="py-12 border-t border-slate-200 dark:border-white/5">
+                {/* ✅ 添加了 data-nosnippet，阻止谷歌抓取这里的碎片词汇作为搜索摘要 */}
+                <section data-nosnippet className="py-12 border-t border-slate-200 dark:border-white/5">
                     <SectionHeader
                         titleKey="home.trending.title"
                         linkTextKey="home.trending.view_all"
@@ -79,7 +80,8 @@ export default async function HomePage() {
                     </div>
                 </section>
 
-                <section className="py-12 border-t border-slate-200 dark:border-white/5">
+                {/* ✅ 添加了 data-nosnippet，阻止谷歌抓取这里的碎片词汇作为搜索摘要 */}
+                <section data-nosnippet className="py-12 border-t border-slate-200 dark:border-white/5">
                     <SectionHeader
                         titleKey="home.fresh.title"
                         linkTextKey="home.trending.view_all"
