@@ -81,7 +81,7 @@ const HomeHero: React.FC<HomeHeroProps> = ({ totalSkills }) => {
     };
 
     return (
-        <section className="relative pt-24 pb-8 lg:pt-36 lg:pb-12 border-b border-slate-200 dark:border-white/5 overflow-hidden bg-white dark:bg-transparent transition-colors duration-300">
+        <section className="relative pt-24 pb-8 lg:pt-36 lg:pb-12 border-b border-slate-200 dark:border-white/5 bg-white dark:bg-transparent transition-colors duration-300">
             {/* Background Glows */}
             <div className="hidden md:block absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-blue-100/50 dark:bg-blue-900/10 rounded-full blur-[120px] pointer-events-none"></div>
             <div className="hidden md:block absolute top-[20%] left-[10%] w-72 h-72 bg-emerald-100/50 dark:bg-emerald-900/5 rounded-full blur-[80px] pointer-events-none"></div>
