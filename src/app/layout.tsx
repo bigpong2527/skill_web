@@ -21,16 +21,19 @@ const jetbrainsMono = JetBrains_Mono({
 // ✅ 确保这里是绝对路径，这对于 SEO 至关重要
 const siteUrl = 'https://skills.rest';
 
+// ✅ 更新全局兜底文案 (写死一个安全的千位数作为默认值)
+const defaultDescription = '113,000+ vetted agent skills for OpenClaw, Claude & Codex. One click to connect the library to your agent. Use on demand.';
+
 export const metadata: Metadata = {
-    title: 'Agent skills Library | skills.rest',
-    description: 'Instantly deploy 8,000+ Agent skills with one click. The definitive library for Claude code skills, agent skills, and automation workflows—ready to run in minutes.',
-    metadataBase: new URL(siteUrl), // ✅ 强制使用生产域名
+    title: 'Agent Skills Library | skills.rest',
+    description: defaultDescription,
+    metadataBase: new URL(siteUrl),
     alternates: {
         canonical: '/',
     },
     openGraph: {
-        title: 'Agent skills Library | skills.rest',
-        description: 'Instantly deploy 8,000+ Agent skills with one click. The definitive library for Claude code skills, agent skills, and automation workflows—ready to run in minutes.',
+        title: 'Agent Skills Library | skills.rest',
+        description: defaultDescription,
         url: siteUrl,
         siteName: 'skills.rest',
         type: 'website',
@@ -39,14 +42,14 @@ export const metadata: Metadata = {
                 url: '/og-image.png',
                 width: 1200,
                 height: 630,
-                alt: 'Agent skills Library',
+                alt: 'Agent Skills Library',
             },
         ],
     },
     twitter: {
         card: 'summary_large_image',
-        title: 'Agent skills Library | skills.rest',
-        description: 'Instantly deploy 8,000+ Agent skills with one click. The definitive library for Claude code skills, agent skills, and automation workflows—ready to run in minutes.',
+        title: 'Agent Skills Library | skills.rest',
+        description: defaultDescription,
         images: ['/og-image.png'],
     },
 };

@@ -74,13 +74,22 @@ export const getSkillsMaxId = async (): Promise<number> => {
 };
 
 export const getHotSkills = async (limit: number = 8): Promise<Skill[]> => {
-  // 修正排序方向，完美命中 idx_skills_hotness_created 索引
-  const results = await query(`SELECT * FROM skills ORDER BY hotness_score DESC, created_at DESC LIMIT ?`, [limit]);
+  // ✅ 最小改动：热度相同时按 ID 正序（最老的数据排在前面）
+  // 这样即便热度全是 0，也会和"最新发布"列表完美错开
+  const sql = `
+    SELECT * FROM skills
+    WHERE status = 'pending'
+    ORDER BY hotness_score DESC, id ASC
+    LIMIT ?
+  `;
+  const results = await query(sql, [limit]);
   return results.map(normalizeSkill);
 };
 
 export const getRecentSkills = async (limit: number = 8): Promise<Skill[]> => {
-  const results = await query(`SELECT * FROM skills ORDER BY created_at DESC LIMIT ?`, [limit]);
+  // ✅ 最小改动：按 ID 倒序，这比按字符串格式的时间戳排序更快、更省钱
+  const sql = `SELECT * FROM skills WHERE status = 'pending' ORDER BY id DESC LIMIT ?`;
+  const results = await query(sql, [limit]);
   return results.map(normalizeSkill);
 };
 
@@ -212,4 +221,12 @@ export const filterSkills = async (filters: SkillFilters): Promise<Skill[]> => {
 
   // 最后一道防线：去重
   return Array.from(new Map(skills.map(skill => [skill.id, skill])).values());
+};
+
+// ✅ [新增] Sitemap 专用极速查询：只查 slug，不排序(默认ID顺序)，不查时间
+// 这样即使 OFFSET 很大，性能依然极高，且完全避免了 500 错误风险
+export const getSitemapSlugs = async (limit: number, offset: number): Promise<string[]> => {
+  const sql = `SELECT slug FROM skills LIMIT ? OFFSET ?`;
+  const results = await query(sql, [limit, offset]);
+  return results.map((r: any) => r.slug);
 };

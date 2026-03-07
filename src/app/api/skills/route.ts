@@ -6,8 +6,10 @@ export const runtime = 'edge';
 
 export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams;
-    const limit = parseInt(searchParams.get('limit') || '12', 10);
-    const offset = parseInt(searchParams.get('offset') || '0', 10);
+    const limitRaw = parseInt(searchParams.get('limit') || '12', 10);
+    const offsetRaw = parseInt(searchParams.get('offset') || '0', 10);
+    const limit = Number.isFinite(limitRaw) ? Math.min(Math.max(limitRaw, 1), 100) : 12;
+    const offset = Number.isFinite(offsetRaw) ? Math.max(offsetRaw, 0) : 0;
     const categorySlug = searchParams.get('categorySlug') || undefined;
     const searchQuery = searchParams.get('searchQuery') || undefined;
     const authorType = (searchParams.get('authorType') || undefined) as AuthorType | undefined;

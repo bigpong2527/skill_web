@@ -14,19 +14,26 @@ export const runtime = 'edge';
 export const revalidate = 3600;
 
 export async function generateMetadata(): Promise<Metadata> {
-    // 使用 getSkillsMaxId 获取历史最大 ID (28810)
-    const totalSkills = await getSkillsMaxId();
+    // 获取历史最大 ID (例如 113046)
+    const totalSkillsRaw = await getSkillsMaxId();
+
+    // ✅ 核心逻辑：只保留千位以上，并用 ,000 结尾 (例如 113046 -> "113,000")
+    const thousands = Math.floor(totalSkillsRaw / 1000);
+    const formattedCount = thousands > 0 ? `${thousands.toLocaleString('en-US')},000` : totalSkillsRaw.toString();
+
+    // ✅ 全新定稿的精准描述
+    const description = `${formattedCount}+ vetted agent skills for OpenClaw, Claude & Codex. One click to connect the library to your agent. Use on demand.`;
 
     return {
-        title: 'Agent skills Library | skills.rest',
-        description: `Instantly deploy ${totalSkills}+ Agent skills with one click. The definitive library for Claude code skills, agent skills, and automation workflows—ready to run in minutes.`,
+        title: 'Agent Skills Library | skills.rest',
+        description: description,
         metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://skills.rest'),
         alternates: {
             canonical: '/',
         },
         openGraph: {
-            title: 'Agent skills Library | skills.rest',
-            description: `Instantly deploy ${totalSkills}+ Agent skills with one click. The definitive library for Claude code skills, agent skills, and automation workflows—ready to run in minutes.`,
+            title: 'Agent Skills Library | skills.rest',
+            description: description,
             url: 'https://skills.rest',
             siteName: 'skills.rest',
             type: 'website',
@@ -35,14 +42,14 @@ export async function generateMetadata(): Promise<Metadata> {
                     url: '/og-image.png',
                     width: 1200,
                     height: 630,
-                    alt: 'Agent skills Library',
+                    alt: 'Agent Skills Library',
                 },
             ],
         },
         twitter: {
             card: 'summary_large_image',
-            title: 'Agent skills Library | skills.rest',
-            description: `Instantly deploy ${totalSkills}+ Agent skills with one click. The definitive library for Claude code skills, agent skills, and automation workflows—ready to run in minutes.`,
+            title: 'Agent Skills Library | skills.rest',
+            description: description,
             images: ['/og-image.png'],
         },
     };

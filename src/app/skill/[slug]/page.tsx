@@ -2,13 +2,14 @@ import React from 'react';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { Metadata } from 'next';
-import { getSkillBySlug, getSkillCategories, getSkillKeywords } from '@/lib/db';
+import { getSkillBySlug, getSkillCategories, getSkillKeywords, getSkillsMaxId } from '@/lib/db';
 import { safeParseJsonArray } from '@/lib/utils';
 import { t } from '@/lib/i18n';
 import InstallGuide from '@/components/client/InstallGuide';
 import MarkdownView from '@/components/server/MarkdownView';
 import NavigationBar from '@/components/client/NavigationBar';
 import StructuredData from '@/components/StructuredData';
+import AgentConnectButton from '@/components/client/AgentConnectButton';
 
 export const runtime = 'edge';
 export const revalidate = 31536000;
@@ -66,9 +67,10 @@ export default async function SkillDetailPage({ params }: PageProps) {
         notFound();
     }
 
-    const [categories, keywords] = await Promise.all([
+    const [categories, keywords, totalSkills] = await Promise.all([
         getSkillCategories(skill.id),
-        getSkillKeywords(skill.id)
+        getSkillKeywords(skill.id),
+        getSkillsMaxId()
     ]);
 
     const dependencies = safeParseJsonArray(skill.dependencies);
@@ -216,6 +218,7 @@ export default async function SkillDetailPage({ params }: PageProps) {
                                     <span>{t('skill.view_source', language)}</span>
                                 </a>
                             )}
+                            <AgentConnectButton totalSkills={totalSkills} />
                         </div>
                     </div>
                 </div>

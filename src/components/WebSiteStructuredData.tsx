@@ -6,9 +6,10 @@ export default function WebSiteStructuredData() {
         '@context': 'https://schema.org',
         '@type': 'WebSite',
         name: 'skills.rest',
-        alternateName: 'Agent skills Library',
+        alternateName: 'Agent Skills Library',
         url: 'https://skills.rest',
-        description: 'The ultimate registry for Claude AI capabilities, tools, and automation skills',
+        // ✅ 同步更新描述
+        description: '113,000+ vetted agent skills for OpenClaw, Claude & Codex. One click to connect the library to your agent. Use on demand.',
         potentialAction: {
             '@type': 'SearchAction',
             target: {
