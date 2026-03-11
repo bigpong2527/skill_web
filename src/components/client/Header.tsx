@@ -56,8 +56,9 @@ const Header: React.FC = () => {
             <Link href="/explore" className="text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-white transition-colors">
               {t('nav.explore', language)}
             </Link>
-            <Link href="/explore?filter=recent" className="text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-white transition-colors">
-              {t('nav.new_arrivals', language)}
+            <Link href="/openclaw" className="flex items-center gap-1.5 text-slate-600 dark:text-slate-400 hover:text-orange-500 dark:hover:text-orange-400 transition-colors">
+              <span className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse"></span>
+              OpenClaw
             </Link>
           </nav>
         </div>

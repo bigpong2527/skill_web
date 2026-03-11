@@ -52,6 +52,7 @@ export async function GET(
     ? [
         `<url><loc>${BASE_URL}</loc><lastmod>${FIXED_DATE}</lastmod><changefreq>daily</changefreq><priority>1.0</priority></url>`,
         `<url><loc>${BASE_URL}/explore</loc><lastmod>${FIXED_DATE}</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>`,
+        `<url><loc>${BASE_URL}/openclaw</loc><lastmod>${FIXED_DATE}</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>`,
         ...categories.map(cat => `<url><loc>${BASE_URL}/category/${escapeXml(encodeURI(cat.slug))}</loc><lastmod>${FIXED_DATE}</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>`)
       ]
     : [];
