@@ -28,8 +28,8 @@ export async function generateMetadata({ searchParams }: PageProps): Promise<Met
     // 这告诉 Google："这个页面只是筛选结果，不是核心内容，请去索引 /skill/[slug] 详情页"。
     if (query || hasCategory || hasAuthorType || hasComplexity || hasFilter) {
         return {
-            title: query ? `Search "${query}" - Agent skills | skills.rest` : 'Filtered Skills | skills.rest',
-            description: 'Filtered view of the Agent skills library.',
+            title: query ? `Search "${query}" - Agent Skills | skills.rest` : 'Filtered Skills | skills.rest',
+            description: 'Filtered view of the Agent Skills library.',
             robots: {
                 index: false, // ❌ 禁止索引筛选结果页
                 follow: true, // ✅ 允许顺着链接爬取详情页
@@ -39,8 +39,8 @@ export async function generateMetadata({ searchParams }: PageProps): Promise<Met
 
     // 纯净的 /explore 页面允许索引
     return {
-        title: 'Explore Agent skills | Ultimate Skills Library | skills.rest',
-        description: 'Browse the complete Agent skills library with 2000+ verified tools. Search, filter, and discover AI automation capabilities for every workflow.',
+        title: 'Explore Agent Skills | Ultimate Skills Library | skills.rest',
+        description: 'Browse the complete Agent Skills library with 113,000+ verified tools. Search, filter, and discover AI automation capabilities for every workflow.',
         alternates: {
             canonical: 'https://skills.rest/explore',
         },

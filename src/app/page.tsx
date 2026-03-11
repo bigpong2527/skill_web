@@ -1,12 +1,11 @@
 import React from 'react';
 import Link from 'next/link';
-import { getHotSkills, getRecentSkills, getAllCategories, getSkillsMaxId } from '@/lib/db'; 
+import { getHotSkills, getRecentSkills, getAllCategories, getSkillsMaxId } from '@/lib/db';
 import SkillCard from '@/components/client/SkillCard';
 import HomeHero from '@/components/client/HomeHero';
 import HomeCategories from '@/components/client/HomeCategories';
 import SectionHeader from '@/components/client/SectionHeader';
-import WebSiteStructuredData from '@/components/WebSiteStructuredData';
-import { Metadata } from 'next'; 
+import { Metadata } from 'next';
 
 export const runtime = 'edge';
 
@@ -66,8 +65,6 @@ export default async function HomePage() {
 
     return (
         <main className="min-h-screen pb-20 selection:bg-blue-500/30">
-            <WebSiteStructuredData />
-
             <HomeHero totalSkills={totalSkills} />
 
             <div className="container mx-auto px-4">

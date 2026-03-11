@@ -44,7 +44,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
             canonical: `${baseUrl}/skill/${skill.slug}` 
         },
         openGraph: {
-            title: `${skill.name}: ${problemSolutionStatement} `,
+            title: `${skill.name}: ${problemSolutionStatement}`,
             description: skill.tagline || problemSolutionStatement,
             type: 'website',
             url: `${baseUrl}/skill/${skill.slug}`,
@@ -52,7 +52,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
         },
         twitter: {
             card: 'summary_large_image',
-            title: `${skill.name}: ${problemSolutionStatement} `,
+            title: `${skill.name}: ${problemSolutionStatement}`,
             description: skill.tagline || problemSolutionStatement,
             images: ['/og-image.png'],
         },

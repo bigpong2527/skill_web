@@ -7,8 +7,8 @@ import { t } from '@/lib/i18n';
 export const runtime = 'edge';
 
 export const metadata: Metadata = {
-    title: 'Categories - Explore Agent skills by Professional Domain | skills.rest',
-    description: 'Browse Agent skills by 10 core professional domains. Find the perfect AI tools for your work.',
+    title: 'Categories - Explore Agent Skills by Professional Domain | skills.rest',
+    description: 'Browse Agent Skills by 10 core professional domains. Find the perfect AI tools for your work.',
     alternates: {
         canonical: 'https://skills.rest/categories',
     },

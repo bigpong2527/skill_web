@@ -77,11 +77,6 @@ export default function StructuredData({ skill, categories }: StructuredDataProp
       priceValidUntil: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
     },
     keywords: allKeywords,
-    workExample: {
-      '@type': 'Thing',
-      name: `${skill.name} Use Case`,
-      description: skill.tagline,
-    },
     potentialAction: {
       '@type': 'UseAction',
       target: {

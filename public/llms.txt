@@ -1,0 +1,56 @@
+# skills.rest
+> 113,000+ vetted agent skills for Claude, OpenClaw & Codex. One click to connect the library to your AI agent. Use on demand.
+
+## What is skills.rest?
+
+skills.rest is a curated, open library of executable AI agent skills. Each skill is a self-contained, installable package that extends the capabilities of AI agents like Claude. Skills cover 10 professional domains and are contributed by official partners, verified authors, and the community.
+
+## Key Features
+
+- 113,000+ vetted and indexed agent skills
+- One-click installation via Claude Code CLI
+- 10 professional domain categories
+- Supports Claude Code, Claude.ai, and API integrations
+- Free to use, community-driven
+
+## How to Install a Skill
+
+**Claude Code (recommended):**
+Run the install command shown on any skill detail page in your terminal (Bash/Zsh or PowerShell).
+
+**Claude.ai (manual):**
+1. Download the skill .zip package from the skill detail page
+2. Upload the extracted files in your Claude.ai project settings
+3. Activate with the /skill command
+
+**API:**
+Reference the skill package URL when calling the Anthropic API in your code.
+
+## Categories
+
+- Content & Communication — Writing, editing, social media management
+- Data & Analytics — Data processing, visualization, analysis
+- Design & Creative — Art generation, image editing, creative concepts
+- Education & Research — Academic research, summarization, learning aids
+- Finance & Accounting — Financial modeling, bookkeeping, market analysis
+- Legal & Compliance — Contract review, regulatory checks, legal research
+- Marketing & Sales — SEO, email campaigns, customer relationship tools
+- Personal & Entrepreneur — Productivity, organization, startup resources
+- Product & Management — Roadmapping, user stories, agile workflows
+- Software Engineering — Code generation, debugging, documentation
+
+## Key Pages
+
+- https://skills.rest — Home, trending and recently updated skills
+- https://skills.rest/explore — Full skill library with search and filters
+- https://skills.rest/categories — Browse all 10 professional domains
+- https://skills.rest/category/software-engineering — Software Engineering skills
+- https://skills.rest/category/data-analytics — Data & Analytics skills
+- https://skills.rest/category/marketing-sales — Marketing & Sales skills
+- https://skills.rest/contribute — How to contribute a skill
+- https://skills.rest/privacy — Privacy policy
+- https://skills.rest/terms — Terms of use
+
+## Sitemap
+
+https://skills.rest/sitemap.xml

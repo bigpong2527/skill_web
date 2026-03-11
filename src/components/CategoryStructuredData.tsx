@@ -31,7 +31,7 @@ export default function CategoryStructuredData({ category }: CategoryStructuredD
         '@context': 'https://schema.org',
         '@type': 'CollectionPage',
         name: `${category.name} Skills`,
-        description: `Browse Agent skills for ${category.name} workflows and automation`,
+        description: `Browse Agent Skills for ${category.name} workflows and automation`,
         url: `https://skills.rest/category/${category.slug}`,
         isPartOf: {
             '@type': 'WebSite',

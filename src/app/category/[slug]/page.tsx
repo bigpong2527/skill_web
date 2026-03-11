@@ -31,21 +31,22 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     const baseUrl = 'https://skills.rest';
 
     return {
-        title: `Agent skills for ${category.name} Workflows | Enterprise AI Automation | skills.rest`,
-        description: `Discover powerful Agent skills designed for ${category.name} workflows. Automate tasks, enhance productivity, and streamline operations with AI-powered tools for ${category.name} professionals.`,
+        title: `Agent Skills for ${category.name} Workflows | Enterprise AI Automation | skills.rest`,
+        description: `Discover powerful Agent Skills designed for ${category.name} workflows. Automate tasks, enhance productivity, and streamline operations with AI-powered tools for ${category.name} professionals.`,
         alternates: {
             canonical: `${baseUrl}/category/${slug}`,
         },
         openGraph: {
-            title: `Agent skills for ${category.name} | skills.rest`,
+            title: `Agent Skills for ${category.name} | skills.rest`,
             description: `Automate ${category.name} workflows with Claude AI Skills`,
             type: 'website',
             url: `${baseUrl}/category/${slug}`,
         },
         twitter: {
             card: 'summary_large_image',
-            title: `Agent skills for ${category.name} | skills.rest`,
+            title: `Agent Skills for ${category.name} | skills.rest`,
             description: `Automate ${category.name} workflows with Claude AI Skills`,
+            images: ['/og-image.png'],
         },
     };
 }

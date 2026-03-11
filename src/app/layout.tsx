@@ -5,6 +5,7 @@ import { ThemeProvider } from '@/components/providers/ThemeContext';
 import { EnvironmentProvider } from '@/components/providers/EnvironmentContext';
 import Header from '@/components/client/Header';
 import Footer from '@/components/server/Footer';
+import WebSiteStructuredData from '@/components/WebSiteStructuredData';
 
 const inter = Inter({
     subsets: ['latin'],
@@ -66,6 +67,7 @@ export default function RootLayout({
 
                 <ThemeProvider>
                     <EnvironmentProvider>
+                        <WebSiteStructuredData />
                         <Header />
                         <main className="flex-grow relative z-10">
                             {children}

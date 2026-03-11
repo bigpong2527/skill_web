@@ -26,7 +26,6 @@ export default function WebSiteStructuredData() {
         name: 'skills.rest',
         url: 'https://skills.rest',
         logo: 'https://skills.rest/og-image.png',
-        sameAs: [],
     };
 
     return (
