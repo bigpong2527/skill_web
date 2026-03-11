@@ -12,7 +12,7 @@ const Footer: React.FC = () => {
             <div className="container mx-auto px-4 flex flex-col md:flex-row justify-between items-center text-slate-500 text-sm">
                 <div className="flex items-center gap-2 mb-4 md:mb-0">
                     <div className="h-2 w-2 bg-emerald-500 rounded-full animate-pulse"></div>
-                    <p>© 2025 skills.rest <span className="mx-2">|</span> {t('footer.operational', language)}</p>
+                    <p>© 2026 skills.rest <span className="mx-2">|</span> {t('footer.operational', language)}</p>
                 </div>
                 <div className="flex gap-8 font-mono text-xs tracking-wider uppercase">
                     <a href="/privacy" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">{t('footer.privacy', language)}</a>
