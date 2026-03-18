@@ -35,7 +35,7 @@ const CategorySkillsList: React.FC<CategorySkillsListProps> = ({ initialSkills, 
             params.set('offset', offset.toString());
             if (categorySlug) params.set('categorySlug', categorySlug);
 
-            const response = await fetch(`/api/skills?${params.toString()}`, { cache: 'no-store' });
+            const response = await fetch(`/api/skills?${params.toString()}`);
             if (!response.ok) throw new Error('API Error');
             const newSkills: Skill[] = await response.json();
 

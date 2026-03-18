@@ -2,7 +2,6 @@
 
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import SkillCard from './SkillCard';
-import { fetchSkills } from '@/app/actions';
 import { Skill } from '@/types';
 import { t } from '@/lib/i18n';
 import { useTheme } from '@/components/providers/ThemeContext';
@@ -60,15 +59,17 @@ const SkillsGrid: React.FC<SkillsGridProps> = ({
 
     setIsLoading(true);
     try {
-      // 调用 Server Action 获取数据
-      const newSkills = await fetchSkills({
-        limit: 12,
-        offset: offset,
-        categorySlug: category,
-        searchQuery: searchQuery,
-        authorType: authorType,
-        complexity: complexity
-      });
+      const params = new URLSearchParams();
+      params.set('limit', '12');
+      params.set('offset', offset.toString());
+      if (category) params.set('categorySlug', category);
+      if (searchQuery) params.set('searchQuery', searchQuery);
+      if (authorType) params.set('authorType', authorType);
+      if (complexity) params.set('complexity', complexity);
+
+      const response = await fetch(`/api/skills?${params.toString()}`);
+      if (!response.ok) throw new Error('API Error');
+      const newSkills: Skill[] = await response.json();
 
       if (newSkills.length > 0) {
         setSkills((prev) => {

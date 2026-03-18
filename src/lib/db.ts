@@ -138,7 +138,7 @@ export interface SkillFilters {
 export const filterSkills = async (filters: SkillFilters): Promise<Skill[]> => {
   let sql = "SELECT s.* FROM skills s";
   const params: any[] = [];
-  const conditions: string[] = [];
+  const conditions: string[] = ["s.status = 'pending'"];
   const joinedTables = new Set<string>();
   
   // 默认排序
