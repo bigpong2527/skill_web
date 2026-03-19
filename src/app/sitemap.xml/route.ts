@@ -26,8 +26,7 @@ export async function GET() {
   return new Response(sitemapIndexXml, {
     headers: {
       'Content-Type': 'application/xml',
-      // 缓存 1 天，极大减轻服务器压力
-      'Cache-Control': 'public, s-maxage=86400, stale-while-revalidate=3600',
+      'Cache-Control': 'public, s-maxage=604800, stale-while-revalidate=86400',
     },
   });
 }
