@@ -183,11 +183,16 @@ export const filterSkills = async (filters: SkillFilters): Promise<Skill[]> => {
         const words = cleanTerm.split(/\s+/).filter(w => w.length > 0);
         const ftsQuery = words.map(word => `"${word}"*`).join(' AND ');
 
-        // ✅ 稳定版 JOIN：移除内部 LIMIT，让外层的分页逻辑正常工作
+        // ✅ 核心修复：加入 LIMIT 400 进行 Top-K 截断
+        // 解释：因为我们外层限制了最大 offset 为 240。
+        // 取最相关的 400 条数据足以应对所有的翻页和交叉过滤，
+        // 这将把单次查询的 Rows Read 从 10,000+ 强制压缩到 400！
         ensureJoin(` JOIN (
             SELECT rowid, bm25(skills_fts, 10.0, 5.0, 1.0) as rank
             FROM skills_fts
             WHERE skills_fts MATCH ?
+            ORDER BY rank ASC
+            LIMIT 400
         ) fts ON s.id = fts.rowid`, 'fts_search');
 
         params.push(ftsQuery);
