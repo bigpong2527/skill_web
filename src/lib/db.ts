@@ -173,34 +173,30 @@ export const filterSkills = async (filters: SkillFilters): Promise<Skill[]> => {
       params.push(filters.complexity); 
   }
 
-  // 🔥 终极全文搜索防御与解析 🔥
+  // 🔥 终极全文搜索防御逻辑 (代码层) 🔥
   if (filters.searchQuery && typeof filters.searchQuery === 'string') {
-    // 1. 防御：截断超长字符串
-    const rawQuery = filters.searchQuery.slice(0, 100);
-    
-    // 2. 清洗：彻底抹除所有特殊符号，只保留字母、数字、空格和连字符
+    // 1. 限制输入长度，防止恶意超长字符串注入
+    const rawQuery = filters.searchQuery.slice(0, 50);
     const cleanTerm = rawQuery.replace(/[^a-zA-Z0-9\s\-]/g, ' ').trim().toLowerCase();
-    
-    if (cleanTerm.length >= 2) {
-        // 3. 构造单词前缀匹配 (e.g. "python*" AND "data*")
+
+    // ✅ 2. 关键防御：搜索词必须 >= 3 个字符
+    // 理由：FTS 搜 1-2 个字符极其耗能（读取万行级），3个字符以上通常只读几百行
+    if (cleanTerm.length >= 3) {
         const words = cleanTerm.split(/\s+/).filter(w => w.length > 0);
         const ftsQuery = words.map(word => `"${word}"*`).join(' AND ');
 
-        // 4. BM25 权重打分：名字命中最高分 (10)，标语次之 (5)，描述最低 (1)
         ensureJoin(` JOIN (
             SELECT rowid, bm25(skills_fts, 10.0, 5.0, 1.0) as rank
             FROM skills_fts
             WHERE skills_fts MATCH ?
             ORDER BY rank ASC
-            LIMIT 300
+            LIMIT 100
         ) fts ON s.id = fts.rowid`, 'fts_search');
 
         params.push(ftsQuery);
-
-        // 5. 覆盖排序规则：搜索相关度(rank)优先
         orderByClause = " ORDER BY fts.rank ASC";
-    } else if (cleanTerm.length === 1) {
-        // 🚨 防御兜底：如果只搜了 1 个字母，直接阻断查询（0次读取），防止 FTS 引擎崩溃式扫描
+    } else {
+        // ✅ 4. 长度不足 3 的直接阻断（Rows Read = 0），保护数据库
         conditions.push(`1 = 0`);
     }
   }
