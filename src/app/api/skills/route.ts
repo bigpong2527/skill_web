@@ -5,6 +5,15 @@ import { AuthorType, Complexity } from '@/types';
 export const runtime = 'edge';
 
 export async function GET(request: NextRequest) {
+    // 🚨 核心防御：验证接头暗号 (保护数据库不被脚本直刷)
+    const clientHeader = request.headers.get('x-skills-client');
+    if (clientHeader !== 'web-app-v1') {
+        return new NextResponse(JSON.stringify({ error: 'Forbidden' }), {
+            status: 403,
+            headers: { 'Content-Type': 'application/json' }
+        });
+    }
+
     const searchParams = request.nextUrl.searchParams;
     const limitRaw = parseInt(searchParams.get('limit') || '12', 10);
     const offsetRaw = parseInt(searchParams.get('offset') || '0', 10);

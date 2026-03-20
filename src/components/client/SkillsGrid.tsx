@@ -67,7 +67,9 @@ const SkillsGrid: React.FC<SkillsGridProps> = ({
       if (authorType) params.set('authorType', authorType);
       if (complexity) params.set('complexity', complexity);
 
-      const response = await fetch(`/api/skills?${params.toString()}`);
+      const response = await fetch(`/api/skills?${params.toString()}`, {
+          headers: { 'x-skills-client': 'web-app-v1' }
+      });
       if (!response.ok) throw new Error('API Error');
       const newSkills: Skill[] = await response.json();
 
