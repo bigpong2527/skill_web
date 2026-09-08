@@ -210,7 +210,7 @@ INSTRUCTIONS FOR THE AGENT:
                         <button
                           key={g.file_name}
                           onClick={() => setActiveGuideIndex(idx)}
-                          className={`px-2 py-0.5 rounded-md transition-all ${activeGuideIndex === idx ? 'font-bold bg-white dark:bg-slate-900 text-purple-700 dark:text-purple-400 shadow-xs' : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'}`}
+                          className={`px-2 py-0.5 rounded-md transition-all ${activeGuideIndex === idx ? 'font-bold bg-white dark:bg-slate-900 text-blue-700 dark:text-blue-400 shadow-xs' : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'}`}
                         >
                           {g.file_name}
                         </button>
@@ -218,7 +218,7 @@ INSTRUCTIONS FOR THE AGENT:
                     </div>
                     <button
                       onClick={() => copyGuidePrompt(availableGuides[activeGuideIndex])}
-                      className="px-2.5 py-1 rounded-lg bg-purple-600 hover:bg-purple-500 text-white text-[10px] font-bold transition-all shadow-xs shrink-0"
+                      className="px-2.5 py-1 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-[10px] font-bold transition-all shadow-xs shrink-0"
                     >
                       Copy install prompt to agent
                     </button>
