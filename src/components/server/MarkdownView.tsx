@@ -3,11 +3,11 @@
 import React from 'react';
 import ReactMarkdown from 'react-markdown';
 
-interface MarkdownContentProps {
+interface MarkdownViewProps {
   content: string;
 }
 
-export default function MarkdownContent({ content }: MarkdownContentProps) {
+export default function MarkdownView({ content }: MarkdownViewProps) {
   return (
     <div className="prose prose-sm max-w-none text-slate-600 dark:text-gray-300">
       <ReactMarkdown

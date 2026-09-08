@@ -13,7 +13,7 @@ interface ThemeContextProps {
 }
 
 export const ThemeContext = createContext<ThemeContextProps>({
-    theme: 'dark',
+    theme: 'light',
     toggleTheme: () => { },
     language: 'en',
     setLanguage: () => { },

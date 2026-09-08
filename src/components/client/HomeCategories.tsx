@@ -20,6 +20,7 @@ const HomeCategories: React.FC<HomeCategoriesProps> = ({ categories }) => {
                     <Link
                         key={cat.id}
                         href={`/category/${cat.slug}`}
+                        prefetch={false}
                         className="group flex flex-col items-center justify-center p-6 rounded-xl border border-slate-200 dark:border-white/5 bg-white dark:bg-[#0B1121] transition-all duration-200 hover:border-blue-500/30 hover:shadow-md dark:hover:bg-[#0F172A] hover:-translate-y-1"
                     >
                         <span className="text-2xl mb-3 opacity-90 group-hover:opacity-100 group-hover:scale-110 transition-all duration-300">

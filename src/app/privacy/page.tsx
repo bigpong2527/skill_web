@@ -1,5 +1,8 @@
 import React from 'react';
 
+export const runtime = 'edge';
+export const revalidate = 604800;
+
 export default function PrivacyPage() {
     return (
         <div className="container mx-auto px-4 py-12 max-w-4xl">

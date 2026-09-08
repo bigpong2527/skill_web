@@ -9,7 +9,7 @@ import CategoryStructuredData from '@/components/CategoryStructuredData';
 import { t } from '@/lib/i18n';
 
 export const runtime = 'edge';
-export const revalidate = 3600;
+export const revalidate = 604800;
 
 interface PageProps {
     params: Promise<{ slug: string }>;

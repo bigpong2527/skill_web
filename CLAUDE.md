@@ -59,3 +59,5 @@ Required for local dev (HTTP API fallback):
 - `wrangler.toml` — D1 binding name is `DB`, node compat enabled
 - `schema.sql` — Database schema (run against D1 to initialize)
 - `npm run pages:build` uses `@cloudflare/next-on-pages` adapter
+
+重要：禁止提交和推送到GitHub。除非用户明确要求。

@@ -7,49 +7,49 @@ interface CategoryStructuredDataProps {
 }
 
 export default function CategoryStructuredData({ category }: CategoryStructuredDataProps) {
-    const breadcrumbSchema = {
-        '@context': 'https://schema.org',
-        '@type': 'BreadcrumbList',
-        itemListElement: [
-            {
-                '@type': 'ListItem',
-                position: 1,
-                name: 'Home',
-                item: 'https://skills.rest',
-            },
-            {
-                '@type': 'ListItem',
-                position: 2,
-                name: category.name,
-                item: `https://skills.rest/category/${category.slug}`,
-            },
-        ],
-    };
+  const baseUrl = 'https://skills.rest';
+  const categoryUrl = `${baseUrl}/category/${encodeURIComponent(category.slug)}`;
 
-    // CollectionPage schema for category
-    const collectionSchema = {
-        '@context': 'https://schema.org',
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'BreadcrumbList',
+        '@id': `${categoryUrl}#breadcrumb`,
+        itemListElement: [
+          {
+            '@type': 'ListItem',
+            position: 1,
+            name: 'Home',
+            item: baseUrl,
+          },
+          {
+            '@type': 'ListItem',
+            position: 2,
+            name: category.name,
+            item: categoryUrl,
+          },
+        ],
+      },
+      {
         '@type': 'CollectionPage',
+        '@id': `${categoryUrl}#collectionpage`,
         name: `${category.name} Skills`,
         description: `Browse Agent Skills for ${category.name} workflows and automation`,
-        url: `https://skills.rest/category/${category.slug}`,
+        url: categoryUrl,
         isPartOf: {
-            '@type': 'WebSite',
-            name: 'skills.rest',
-            url: 'https://skills.rest',
+          '@type': 'WebSite',
+          name: 'skills.rest',
+          url: baseUrl,
         },
-    };
+      },
+    ],
+  };
 
-    return (
-        <>
-            <script
-                type="application/ld+json"
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
-            />
-            <script
-                type="application/ld+json"
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionSchema) }}
-            />
-        </>
-    );
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+    />
+  );
 }

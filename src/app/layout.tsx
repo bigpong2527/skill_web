@@ -6,6 +6,7 @@ import { EnvironmentProvider } from '@/components/providers/EnvironmentContext';
 import Header from '@/components/client/Header';
 import Footer from '@/components/server/Footer';
 import WebSiteStructuredData from '@/components/WebSiteStructuredData';
+import { getSkillsMaxId } from '@/lib/db';
 
 const inter = Inter({
     subsets: ['latin'],
@@ -22,57 +23,66 @@ const jetbrainsMono = JetBrains_Mono({
 // ✅ 确保这里是绝对路径，这对于 SEO 至关重要
 const siteUrl = 'https://skills.rest';
 
-// ✅ 更新全局兜底文案 (写死一个安全的千位数作为默认值)
-const defaultDescription = '113,000+ vetted agent skills for OpenClaw, Claude & Codex. One click to connect the library to your agent. Use on demand.';
+// ✅ 动态读取数据库实时总数（0 硬编码）
+export async function generateMetadata(): Promise<Metadata> {
+    const totalSkillsRaw = await getSkillsMaxId();
+    const thousands = Math.floor(totalSkillsRaw / 1000);
+    const formattedCount = thousands > 0 ? `${thousands.toLocaleString('en-US')},000` : totalSkillsRaw.toString();
 
-export const metadata: Metadata = {
-    title: 'Agent Skills Library | skills.rest',
-    description: defaultDescription,
-    metadataBase: new URL(siteUrl),
-    alternates: {
-        canonical: '/',
-    },
-    openGraph: {
-        title: 'Agent Skills Library | skills.rest',
-        description: defaultDescription,
-        url: siteUrl,
-        siteName: 'skills.rest',
-        type: 'website',
-        images: [
-            {
-                url: '/og-image.png',
-                width: 1200,
-                height: 630,
-                alt: 'Agent Skills Library',
-            },
-        ],
-    },
-    twitter: {
-        card: 'summary_large_image',
-        title: 'Agent Skills Library | skills.rest',
-        description: defaultDescription,
-        images: ['/og-image.png'],
-    },
-};
+    const mainTitle = 'Agent Skills Library — ChatGPT & Claude Skills | skills.rest';
+    const mainDesc = `${formattedCount}+ AI agent skills for ChatGPT, Claude & Gemini. Vetted. One-click install. 100% free. Updated daily.`;
 
-export default function RootLayout({
+    return {
+        title: mainTitle,
+        description: mainDesc,
+        metadataBase: new URL(siteUrl),
+        alternates: {
+            canonical: '/',
+        },
+        openGraph: {
+            title: mainTitle,
+            description: mainDesc,
+            url: siteUrl,
+            siteName: 'skills.rest',
+            type: 'website',
+            images: [
+                {
+                    url: '/og-image.png',
+                    width: 1200,
+                    height: 630,
+                    alt: 'Agent Skills Library',
+                },
+            ],
+        },
+        twitter: {
+            card: 'summary_large_image',
+            title: mainTitle,
+            description: mainDesc,
+            images: ['/og-image.png'],
+        },
+    };
+}
+
+export default async function RootLayout({
     children,
 }: {
     children: React.ReactNode;
 }) {
+    const totalSkills = await getSkillsMaxId();
+
     return (
-        <html lang="en" className="dark" suppressHydrationWarning>
+        <html lang="en" suppressHydrationWarning>
             <body className={`${inter.variable} ${jetbrainsMono.variable} bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-200 font-sans transition-colors duration-300 min-h-screen flex flex-col`}>
                 <div className="noise-overlay"></div>
 
                 <ThemeProvider>
                     <EnvironmentProvider>
-                        <WebSiteStructuredData />
-                        <Header />
+                        <WebSiteStructuredData totalSkills={totalSkills} />
+                        <Header totalSkills={totalSkills} />
                         <main className="flex-grow relative z-10">
                             {children}
                         </main>
-                        <Footer />
+                        <Footer totalSkills={totalSkills} />
                     </EnvironmentProvider>
                 </ThemeProvider>
             </body>

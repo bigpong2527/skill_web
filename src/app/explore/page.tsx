@@ -1,13 +1,14 @@
 import React from 'react';
 import Link from 'next/link';
 import { Metadata } from 'next';
-import { filterSkills, getAllCategories } from '@/lib/db';
+import { filterSkills, getAllCategories, getSkillsMaxId } from '@/lib/db';
 import SkillsGrid from '@/components/client/SkillsGrid';
 import SearchBar from '@/components/client/SearchBar';
 import ExploreSidebar from '@/components/client/ExploreSidebar';
 import { t } from '@/lib/i18n';
 
 export const runtime = 'edge';
+export const revalidate = 604800;
 
 interface PageProps {
     searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
@@ -37,10 +38,14 @@ export async function generateMetadata({ searchParams }: PageProps): Promise<Met
         };
     }
 
-    // 纯净的 /explore 页面允许索引
+    // 🌟 动态读取数据库实时总数
+    const totalSkillsRaw = await getSkillsMaxId();
+    const thousands = Math.floor(totalSkillsRaw / 1000);
+    const formattedCount = thousands > 0 ? `${thousands.toLocaleString('en-US')},000` : totalSkillsRaw.toString();
+
     return {
         title: 'Explore Agent Skills | Ultimate Skills Library | skills.rest',
-        description: 'Browse the complete Agent Skills library with 113,000+ verified tools. Search, filter, and discover AI automation capabilities for every workflow.',
+        description: `Browse ${formattedCount}+ AI agent skills for ChatGPT, Claude & Gemini. Search, filter, and discover verified tools for every workflow.`,
         alternates: {
             canonical: 'https://skills.rest/explore',
         },

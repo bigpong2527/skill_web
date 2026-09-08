@@ -21,6 +21,8 @@ export async function GET(request: NextRequest) {
     const offset = Number.isFinite(offsetRaw) ? Math.max(offsetRaw, 0) : 0;
     const categorySlug = searchParams.get('categorySlug') || undefined;
     const searchQuery = searchParams.get('searchQuery') || undefined;
+    // ✅ 新增：安全提取作者参数并做防注入截断
+    const authorName = searchParams.get('authorName')?.slice(0, 50) || undefined;
     const authorType = (searchParams.get('authorType') || undefined) as AuthorType | undefined;
     const complexity = (searchParams.get('complexity') || undefined) as Complexity | undefined;
     const keywordsParam = searchParams.get('keywords');
@@ -28,11 +30,11 @@ export async function GET(request: NextRequest) {
 
     try {
         const skills = await filterSkills({
-            limit, offset, categorySlug, searchQuery, authorType, complexity, keywords
+            limit, offset, categorySlug, searchQuery, authorType, complexity, keywords, authorName
         });
         return NextResponse.json(skills, {
             headers: {
-                'Cache-Control': 'public, s-maxage=3600, max-age=300, stale-while-revalidate=86400',
+                'Cache-Control': 'public, s-maxage=604800, max-age=86400, stale-while-revalidate=86400',
             }
         });
     } catch (error) {

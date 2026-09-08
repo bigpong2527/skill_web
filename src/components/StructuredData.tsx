@@ -1,158 +1,164 @@
-
 import React from 'react';
-import { Skill, Category } from '../types';
-import { safeParseJsonArray } from '../lib/utils';
+import { Category, Skill } from '../types';
+
+interface FAQ {
+  question: string;
+  answer: string;
+}
 
 interface StructuredDataProps {
   skill: Skill;
   categories: Category[];
+  faqs?: FAQ[];
 }
 
-export default function StructuredData({ skill, categories }: StructuredDataProps) {
-  const dependencies = safeParseJsonArray(skill.dependencies);
+// ✅ 解决 SQLite 带空格时间导致 Google 报 Invalid ISO 8601 Date 警告
+function toIsoDate(dateStr?: string | null): string {
+  if (!dateStr || dateStr === 'NULL') return '2025-10-01';
+  try {
+    const d = new Date(dateStr.replace(' ', 'T'));
+    if (isNaN(d.getTime())) return '2025-10-01';
+    return d.toISOString().split('T')[0];
+  } catch {
+    return '2025-10-01';
+  }
+}
 
-  const categoryNames = categories.map((c) => c.name);
+export default function StructuredData({
+  skill,
+  categories,
+  faqs = [],
+}: StructuredDataProps) {
+  const categoryNames = categories.map((category) => category.name);
   const primaryCategory = categories[0];
-  const primaryCategoryName = primaryCategory?.name || 'Developer Tool';
-  const primaryCategorySlug = primaryCategory?.slug || 'software-engineering';
 
-  // Comprehensive category mapping based on slug for all 10 static categories
-  const categoryToSchemaMap: Record<string, string> = {
-    'software-engineering': 'DeveloperApplication',
-    'data-analytics': 'DataApplication',
-    'design-creative': 'DesignApplication',
-    'marketing-sales': 'BusinessApplication',
-    'finance-accounting': 'BusinessApplication',
-    'product-management': 'BusinessApplication',
-    'content-communication': 'CommunicationApplication',
-    'education-research': 'EducationalApplication',
-    'legal-compliance': 'BusinessApplication',
-    'personal-entrepreneur': 'LifestyleApplication',
-  };
+  const baseUrl = 'https://skills.rest';
+  const skillUrl = `${baseUrl}/skill/${encodeURIComponent(skill.slug)}`;
 
-  // SEO CRITICAL: Use 'Application' as fallback (more generic and Google-friendly than 'Utility')
-  const applicationCategory = categoryToSchemaMap[primaryCategorySlug] || 'Application';
-
-  const softwareRequirements = dependencies.length > 0 ? `Requires: ${dependencies.join(', ')}` : undefined;
-
-  const allKeywords = [skill.name, ...categoryNames, 'Claude Skill', 'Agent Skill', 'AI Tool', skill.author_name].join(
-    ', '
-  );
-
-  const schema: any = {
-    '@context': 'https://schema.org',
+  // 1. 软件应用 Schema
+  const softwareSchema: Record<string, unknown> = {
     '@type': 'SoftwareApplication',
     name: skill.name,
-    description: skill.tagline || skill.description.substring(0, 200),
-    applicationCategory,
-    operatingSystem: 'Claude AI, Cross-platform',
+    description: skill.tagline || (skill.description ? skill.description.slice(0, 200) : skill.name),
+    applicationCategory: 'DeveloperApplication',
+    operatingSystem: 'Cross-platform',
     author: {
-      '@type': 'Person',
-      name: skill.author_name,
+      '@type': skill.author_type === 'Official' ? 'Organization' : 'Person',
+      name: skill.author_display_name || skill.author_name,
+      url: `${baseUrl}/company/${encodeURIComponent(skill.author_name.toLowerCase())}`,
     },
-    // Download interaction statistics
-    interactionStatistic: skill.downloads > 0 ? {
-      '@type': 'InteractionCounter',
-      interactionType: 'https://schema.org/DownloadAction',
-      userInteractionCount: skill.downloads,
-    } : undefined,
     creator: {
-      '@type': 'Organization',
-      name: skill.author_name,
+      '@type': skill.author_type === 'Official' ? 'Organization' : 'Person',
+      name: skill.author_display_name || skill.author_name,
     },
     version: skill.version,
-    releaseNotes: `Version ${skill.version} - Complexity: ${skill.complexity}`,
-    dateModified: skill.updated_at,
-    datePublished: skill.created_at,
-    downloadUrl: `https://skills.rest/skill/${skill.slug}`,
-    installUrl: `https://skills.rest/skill/${skill.slug}`,
-    softwareRequirements: softwareRequirements,
-    // SEO CRITICAL: Schema accuracy is essential for Google Rich Results
-    // Price is currently hardcoded as free. Future: add price field to database
+    dateModified: toIsoDate(skill.updated_at),
+    datePublished: toIsoDate(skill.created_at),
+    url: skillUrl,
+    installUrl: skillUrl,
+    softwareRequirements: (function() {
+      if (!skill.dependencies) return undefined;
+      try {
+        let raw = skill.dependencies;
+        if (raw.startsWith('"') && raw.endsWith('"')) raw = JSON.parse(raw);
+        const arr = JSON.parse(raw);
+        return Array.isArray(arr) ? arr.join(', ') : undefined;
+      } catch {
+        return skill.dependencies.replace(/["\[\]\\]/g, '').trim() || undefined;
+      }
+    })(),
+    keywords: [
+      skill.name,
+      ...categoryNames,
+      ...(skill.keywords || []),
+      'Agent Skill',
+      'AI Skill',
+      'Claude Skill',
+      'ChatGPT Skill',
+      'Gemini Skill',
+    ].join(', '),
     offers: {
       '@type': 'Offer',
-      price: '0', // Free tier - update when paid skills are introduced
+      price: '0',
       priceCurrency: 'USD',
       availability: 'https://schema.org/InStock',
-      priceValidUntil: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-    },
-    keywords: allKeywords,
-    potentialAction: {
-      '@type': 'UseAction',
-      target: {
-        '@type': 'EntryPoint',
-        urlTemplate: `https://skills.rest/skill/${skill.slug}`,
-        actionPlatform: ['http://schema.org/DesktopWebPlatform', 'http://schema.org/MobileWebPlatform'],
-      },
-    },
-    isPartOf: {
-      '@type': 'WebApplication',
-      name: 'skills.rest',
-      url: 'https://skills.rest',
-      applicationCategory: 'SkillDiscoveryPlatform',
     },
   };
 
-  // Only add rating schema if ratings exist, complying with Google policies
-  if (skill.ratings_count > 0) {
-    schema.aggregateRating = {
+  // 仅在有真实有效评分时输出评分，杜绝虚假打分风险
+  if (skill.ratings_count > 0 && skill.rating > 0) {
+    softwareSchema.aggregateRating = {
       '@type': 'AggregateRating',
       ratingValue: skill.rating.toFixed(1),
       ratingCount: skill.ratings_count,
       bestRating: '5',
       worstRating: '1',
     };
-
-    schema.review = {
-      '@type': 'Review',
-      author: {
-        '@type': 'Organization',
-        name: 'Aggregated User Reviews',
-      },
-      reviewRating: {
-        '@type': 'Rating',
-        ratingValue: skill.rating.toFixed(1),
-        bestRating: '5',
-        worstRating: '1',
-      },
-    };
   }
 
+  // 2. 面包屑导航 Schema
   const breadcrumbSchema = {
-    '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
     itemListElement: [
       {
         '@type': 'ListItem',
         position: 1,
         name: 'Home',
-        item: 'https://skills.rest',
+        item: baseUrl,
       },
+      ...(primaryCategory
+        ? [
+            {
+              '@type': 'ListItem',
+              position: 2,
+              name: primaryCategory.name,
+              item: `${baseUrl}/category/${encodeURIComponent(primaryCategory.slug)}`,
+            },
+          ]
+        : []),
       {
         '@type': 'ListItem',
-        position: 2,
-        name: primaryCategoryName,
-        item: `https://skills.rest/category/${primaryCategory?.slug || 'general'}`,
-      },
-      {
-        '@type': 'ListItem',
-        position: 3,
+        position: primaryCategory ? 3 : 2,
         name: skill.name,
-        item: `https://skills.rest/skill/${skill.slug}`,
+        item: skillUrl,
       },
     ],
   };
 
+  // 3. 构造干净的知识图谱树（无多余中间变量，100% 杜绝 null 入树）
+  const validFaqs = faqs.filter(
+    (faq) =>
+      typeof faq?.question === 'string' &&
+      faq.question.trim() &&
+      typeof faq?.answer === 'string' &&
+      faq.answer.trim()
+  );
+
+  const graphList: any[] = [softwareSchema, breadcrumbSchema];
+
+  if (validFaqs.length > 0) {
+    graphList.push({
+      '@type': 'FAQPage',
+      mainEntity: validFaqs.map((faq) => ({
+        '@type': 'Question',
+        name: faq.question,
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: faq.answer,
+        },
+      })),
+    });
+  }
+
   return (
-    <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
-      />
-    </>
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{
+        __html: JSON.stringify({
+          '@context': 'https://schema.org',
+          '@graph': graphList,
+        }),
+      }}
+    />
   );
 }
