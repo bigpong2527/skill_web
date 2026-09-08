@@ -72,7 +72,7 @@ export default function Footer({ totalSkills }: FooterProps) {
             </h4>
             <ul className="space-y-2 font-mono text-slate-500 dark:text-slate-400 text-xs">
               <li><a href="mailto:support@skills.rest" className="hover:text-blue-600 dark:hover:text-white transition-colors">{t('footer.about_support', language)}</a></li>
-              <li><a href="https://x.com/camoneart" target="_blank" rel="noopener noreferrer" className="hover:text-blue-600 dark:hover:text-white transition-colors">{t('footer.founder_twitter', language)}</a></li>
+              <li><a href="https://x.com/DPZH2527" target="_blank" rel="noopener noreferrer" className="hover:text-blue-600 dark:hover:text-white transition-colors">{t('footer.founder_twitter', language)}</a></li>
             </ul>
           </div>
 
