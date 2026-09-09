@@ -216,12 +216,6 @@ export const getRecentSkills = async (limit: number = 8): Promise<Skill[]> => {
   return results.map(normalizeSkill);
 };
 
-export const getHotSkills = async (limit: number = 8): Promise<Skill[]> => {
-  const sql = `SELECT * FROM skills WHERE status = 'pending' ORDER BY hotness_score DESC, created_at DESC LIMIT ?`;
-  const results = await query(sql, [limit]);
-  return results.map(normalizeSkill);
-};
-
 export const getAllCategories = async (): Promise<Category[]> => {
   const results = await query(`SELECT slug, featured_skill_ids FROM categories`);
   const dbCatMap = new Map(results.map((r: any) => [r.slug, r.featured_skill_ids]));
@@ -499,11 +493,20 @@ export const filterSkills = async (filters: SkillFilters): Promise<Skill[]> => {
 
   sql += orderByClause;
 
-  const limit = filters.limit || 12;
-  const offset = filters.offset || 0;
+  const rawLimit = Number.isFinite(filters.limit) ? Math.max(Number(filters.limit), 1) : 12;
+  const offset = Number.isFinite(filters.offset) ? Math.max(Number(filters.offset), 0) : 0;
 
-  if (!filters.authorName && offset > 240) return [];
-  if (filters.authorName && offset > 2000) return [];
+  // 🛡️ 普通浏览严格截断在 200 行以内；作者主页放宽至 2000 行
+  const MAX_WINDOW = filters.authorName ? 2000 : 200;
+
+  if (offset >= MAX_WINDOW) {
+    return [];
+  }
+
+  const limit = Math.min(rawLimit, MAX_WINDOW - offset);
+  if (limit <= 0) {
+    return [];
+  }
 
   sql += ` LIMIT ? OFFSET ?`;
   params.push(limit, offset);
