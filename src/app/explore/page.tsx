@@ -44,7 +44,7 @@ export async function generateMetadata({ searchParams }: PageProps): Promise<Met
     const formattedCount = thousands > 0 ? `${thousands.toLocaleString('en-US')},000` : totalSkillsRaw.toString();
 
     return {
-        title: 'Explore Agent Skills | Ultimate Skills Library | skills.rest',
+        title: 'Explore Agent Skills for ChatGPT & Claude | skills.rest',
         description: `Browse ${formattedCount}+ AI agent skills for ChatGPT, Claude & Gemini. Search, filter, and discover verified tools for every workflow.`,
         alternates: {
             canonical: 'https://skills.rest/explore',
