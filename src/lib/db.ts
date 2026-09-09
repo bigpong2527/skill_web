@@ -239,11 +239,10 @@ export const getSkillsByIds = cache(async (idsStr: string | null | undefined, li
 
   if (idArray.length === 0) return [];
 
-  // 2. 主键 IN 查询
-  const placeholders = idArray.map(() => '?').join(',');
-  const sql = `SELECT * FROM skills WHERE id IN (${placeholders}) AND status = 'pending'`;
-  const numericIds = idArray.map((id) => Number(id));
-  const results = await query(sql, numericIds);
+  // 2. 纯数字直接字面量拼接，避免 200 个占位符超限导致 D1 驱动抛错返回空
+  const inList = idArray.join(',');
+  const sql = `SELECT * FROM skills WHERE id IN (${inList}) AND status = 'pending'`;
+  const results = await query(sql, []);
 
   // 3. 将 row.id 统一转为 String 键，严格保证首页卡片展示顺序与预设 ID 顺序完全一致
   const skillMap = new Map(results.map((row: any) => [String(row.id), normalizeSkill(row)]));
