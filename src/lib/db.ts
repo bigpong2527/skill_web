@@ -430,9 +430,18 @@ export const filterSkills = async (filters: SkillFilters): Promise<Skill[]> => {
   };
 
   if (filters.categorySlug) {
-    ensureJoin(` JOIN skill_categories sc ON s.id = sc.skill_id JOIN categories c ON sc.category_id = c.id`, 'categories');
-    conditions.push('c.slug = ?');
-    params.push(filters.categorySlug);
+    const cat = STATIC_CATEGORIES.find(c => c.slug === filters.categorySlug);
+    const catId = cat?.id;
+
+    if (catId) {
+      ensureJoin(` JOIN skill_categories sc ON s.id = sc.skill_id`, 'skill_categories');
+      conditions.push('sc.category_id = ?');
+      params.push(catId);
+    } else {
+      ensureJoin(` JOIN skill_categories sc ON s.id = sc.skill_id JOIN categories c ON sc.category_id = c.id`, 'categories');
+      conditions.push('c.slug = ?');
+      params.push(filters.categorySlug);
+    }
   }
 
   if (filters.keywords && filters.keywords.length > 0) {
@@ -491,12 +500,18 @@ export const filterSkills = async (filters: SkillFilters): Promise<Skill[]> => {
     sql += ' WHERE ' + conditions.join(' AND ');
   }
 
+  // 🚀 核心优化：按分类筛选时取消 ORDER BY，凑够数量立即终止扫描，绝不全盘排序！
+  // 搜索词查询依然保留 fts.rank 排序；非分类场景保留原默认排序
+  if (filters.categorySlug && !filters.searchQuery) {
+    orderByClause = '';
+  }
+
   sql += orderByClause;
 
   const rawLimit = Number.isFinite(filters.limit) ? Math.max(Number(filters.limit), 1) : 12;
   const offset = Number.isFinite(filters.offset) ? Math.max(Number(filters.offset), 0) : 0;
 
-  // 🛡️ 普通浏览严格截断在 200 行以内；作者主页放宽至 2000 行
+  // 🛡️ 严格安全窗口：普通浏览限制在前 200 行以内；作者主页放宽至 2000 行
   const MAX_WINDOW = filters.authorName ? 2000 : 200;
 
   if (offset >= MAX_WINDOW) {
