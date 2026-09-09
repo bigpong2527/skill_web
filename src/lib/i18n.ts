@@ -127,6 +127,15 @@ const dictionary: Dictionary = {
   'category.product-management': { en: 'Product & Management', cn: '产品与管理' },
   'category.software-engineering': { en: 'Software Engineering', cn: '软件工程' },
 
+  // --- Category Page Content ---
+  'category.no_data': { en: 'No skills available in this category yet.', cn: '该分类下暂无收录技能。' },
+  'category.return': { en: 'Back to Explore', cn: '返回探索页' },
+  'category.seo.title_prefix': { en: 'Why Use Agent Skills for', cn: '为何使用智能体技能来实现' },
+  'category.seo.title_suffix': { en: 'Workflows?', cn: '工作流自动化？' },
+  'category.seo.p1_start': { en: 'Agent Skills designed for', cn: '专为' },
+  'category.seo.p1_end': { en: 'professionals provide deterministic, reproducible automation that eliminates repetitive manual work.', cn: '专业人士设计的智能体技能提供确定性、可重现的自动化，彻底消除重复性手工操作。' },
+  'category.seo.p2': { en: ' Whether you're building production workflows or exploring AI-assisted tooling, these vetted open-source skills integrate seamlessly with Claude Code, ChatGPT, and Cursor.', cn: '无论您是在构建生产工作流还是探索 AI 辅助工具，这些经过审核的开源技能都能与 Claude Code、ChatGPT 和 Cursor 无缝集成。' },
+
   // --- Category Descriptions ---
   'category.desc.content-communication': { en: 'Skills for writing, editing, and social media management.', cn: '用于写作、编辑和社交媒体管理的技能。' },
   'category.desc.data-analytics': { en: 'Tools for data processing, visualization, and analysis.', cn: '用于数据处理、可视化和分析的工具。' },
