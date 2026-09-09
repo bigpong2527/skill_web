@@ -415,11 +415,26 @@ export interface SkillFilters {
 // 🔍 探索与筛选核心函数 (带防爬虫深度限制与 FTS Top-100 截断)
 // ============================================================
 export const filterSkills = async (filters: SkillFilters): Promise<Skill[]> => {
-  // ⚡ 极速直出通道：纯分类浏览时直接走 categories 表的 20 个精选 ID 主键点查
-  // 零宽表扫描、零排序，响应耗时 1ms，读取行数恒定在 20 行以内
+  const cleanSearchQuery = filters.searchQuery?.trim();
+
+  // 🚨 1. 终极防御：无任何有效筛选条件时，直接短路返回，彻底杜绝无头全表扫描
+  const hasAnyFilter = Boolean(
+    filters.categorySlug ||
+    cleanSearchQuery ||
+    (filters.keywords && filters.keywords.length > 0) ||
+    filters.authorType ||
+    filters.authorName ||
+    filters.complexity
+  );
+
+  if (!hasAnyFilter) {
+    return [];
+  }
+
+  // ⚡ 2. 极速直出通道：纯分类浏览时直接走 categories 表的精选 ID 主键点查
   if (
     filters.categorySlug &&
-    !filters.searchQuery &&
+    !cleanSearchQuery &&
     (!filters.keywords || filters.keywords.length === 0) &&
     !filters.authorType &&
     !filters.authorName &&
@@ -428,7 +443,6 @@ export const filterSkills = async (filters: SkillFilters): Promise<Skill[]> => {
     const offset = Number.isFinite(filters.offset) ? Math.max(Number(filters.offset), 0) : 0;
     const limit = Number.isFinite(filters.limit) ? Math.max(Number(filters.limit), 1) : 12;
 
-    // 精选池已扩充至 200 条，到达 200 条后平滑返回空数组，终止流式滚动
     if (offset >= 200) {
       return [];
     }
@@ -442,11 +456,15 @@ export const filterSkills = async (filters: SkillFilters): Promise<Skill[]> => {
     }
   }
 
-  let sql = 'SELECT s.* FROM skills s';
-  const params: any[] = [];
+  // 🛡️ 3. 动态交叉筛选：采用"延迟关联 (Deferred Join)"架构，防扫表
+  let sql = 'SELECT s.id FROM skills s';
+
+  // 🔒 将 JOIN 参数与 WHERE 参数严格物理分离，杜绝参数位置错位
+  const joinParams: any[] = [];
+  const whereParams: any[] = [];
   const conditions: string[] = ["s.status = 'pending'"];
   const joinedTables = new Set<string>();
-  let orderByClause = ' ORDER BY s.hotness_score DESC, s.created_at DESC';
+  let orderByClause = ' ORDER BY s.id DESC';
 
   const ensureJoin = (joinSql: string, tableName: string) => {
     if (!joinedTables.has(tableName)) {
@@ -455,55 +473,13 @@ export const filterSkills = async (filters: SkillFilters): Promise<Skill[]> => {
     }
   };
 
-  if (filters.categorySlug) {
-    const cat = STATIC_CATEGORIES.find(c => c.slug === filters.categorySlug);
-    const catId = cat?.id;
-
-    if (catId) {
-      ensureJoin(` JOIN skill_categories sc ON s.id = sc.skill_id`, 'skill_categories');
-      conditions.push('sc.category_id = ?');
-      params.push(catId);
-    } else {
-      ensureJoin(` JOIN skill_categories sc ON s.id = sc.skill_id JOIN categories c ON sc.category_id = c.id`, 'categories');
-      conditions.push('c.slug = ?');
-      params.push(filters.categorySlug);
-    }
-  }
-
-  if (filters.keywords && filters.keywords.length > 0) {
-    const cleanKeywords = filters.keywords.map(k => k.trim()).filter(Boolean);
-    if (cleanKeywords.length > 0) {
-      ensureJoin(` JOIN skill_keywords sk_f ON s.id = sk_f.skill_id JOIN keywords k_f ON sk_f.keyword_id = k_f.id`, 'keywords_filter');
-      const placeholders = cleanKeywords.map(() => '?').join(',');
-      conditions.push(`k_f.name IN (${placeholders})`);
-      params.push(...cleanKeywords);
-    }
-  }
-
-  if (filters.authorType) {
-    conditions.push('s.author_type = ?');
-    params.push(filters.authorType);
-  }
-
-  if (filters.authorName) {
-    conditions.push('s.author_name COLLATE NOCASE = ?');
-    params.push(filters.authorName);
-  }
-
-  if (filters.complexity) {
-    conditions.push('s.complexity = ?');
-    params.push(filters.complexity);
-  }
-
-  if (filters.searchQuery && typeof filters.searchQuery === 'string') {
-    const rawQuery = filters.searchQuery.slice(0, 50);
-    // 关键修复 1：只保留字母数字，彻底消除短横线 - 触发的 NOT 排除运算或语法注入
+  // 搜索子查询（位于 JOIN 区域）
+  if (cleanSearchQuery) {
+    const rawQuery = cleanSearchQuery.slice(0, 50);
     const cleanTerm = rawQuery.replace(/[^a-zA-Z0-9\s]/g, ' ').trim().toLowerCase();
 
-    // 关键修复 2：长度放宽到 2，支持 AI/UI/JS 等搜索
     if (cleanTerm.length >= 2) {
       const words = cleanTerm.split(/\s+/).filter((w) => w.length > 0);
-      // 关键修复 3：FTS5 正确的通配符语法是 word*（无引号包围通配符）
       const ftsQuery = words.map((word) => `${word}*`).join(' AND ');
       ensureJoin(
         ` JOIN (
@@ -515,21 +491,60 @@ export const filterSkills = async (filters: SkillFilters): Promise<Skill[]> => {
         ) fts ON s.id = fts.rowid`,
         'fts_search'
       );
-      params.push(ftsQuery);
+      joinParams.push(ftsQuery);
       orderByClause = ' ORDER BY fts.rank ASC';
     } else {
       conditions.push(`1 = 0`);
     }
   }
 
-  if (conditions.length > 0) {
-    sql += ' WHERE ' + conditions.join(' AND ');
+  // 分类关联
+  if (filters.categorySlug) {
+    const cat = STATIC_CATEGORIES.find(c => c.slug === filters.categorySlug);
+    const catId = cat?.id;
+
+    if (catId) {
+      ensureJoin(` JOIN skill_categories sc ON s.id = sc.skill_id`, 'skill_categories');
+      conditions.push('sc.category_id = ?');
+      whereParams.push(catId);
+    } else {
+      ensureJoin(` JOIN skill_categories sc ON s.id = sc.skill_id JOIN categories c ON sc.category_id = c.id`, 'categories');
+      conditions.push('c.slug = ?');
+      whereParams.push(filters.categorySlug);
+    }
   }
 
-  // 🚀 核心优化：按分类筛选时取消 ORDER BY，凑够数量立即终止扫描，绝不全盘排序！
-  // 搜索词查询依然保留 fts.rank 排序；非分类场景保留原默认排序
-  if (filters.categorySlug && !filters.searchQuery) {
-    orderByClause = '';
+  // 关键词过滤（使用 EXISTS 保证结果行数唯一性，防止破坏 LIMIT 分页）
+  if (filters.keywords && filters.keywords.length > 0) {
+    const cleanKeywords = filters.keywords.map(k => k.trim()).filter(Boolean);
+    if (cleanKeywords.length > 0) {
+      const placeholders = cleanKeywords.map(() => '?').join(',');
+      conditions.push(`EXISTS (
+        SELECT 1 FROM skill_keywords sk_f
+        JOIN keywords k_f ON sk_f.keyword_id = k_f.id
+        WHERE sk_f.skill_id = s.id AND k_f.name IN (${placeholders})
+      )`);
+      whereParams.push(...cleanKeywords);
+    }
+  }
+
+  if (filters.authorType) {
+    conditions.push('s.author_type = ?');
+    whereParams.push(filters.authorType);
+  }
+
+  if (filters.authorName) {
+    conditions.push('s.author_name COLLATE NOCASE = ?');
+    whereParams.push(filters.authorName);
+  }
+
+  if (filters.complexity) {
+    conditions.push('s.complexity = ?');
+    whereParams.push(filters.complexity);
+  }
+
+  if (conditions.length > 0) {
+    sql += ' WHERE ' + conditions.join(' AND ');
   }
 
   sql += orderByClause;
@@ -537,7 +552,6 @@ export const filterSkills = async (filters: SkillFilters): Promise<Skill[]> => {
   const rawLimit = Number.isFinite(filters.limit) ? Math.max(Number(filters.limit), 1) : 12;
   const offset = Number.isFinite(filters.offset) ? Math.max(Number(filters.offset), 0) : 0;
 
-  // 🛡️ 严格安全窗口：普通浏览限制在前 200 行以内；作者主页放宽至 2000 行
   const MAX_WINDOW = filters.authorName ? 2000 : 200;
 
   if (offset >= MAX_WINDOW) {
@@ -550,11 +564,28 @@ export const filterSkills = async (filters: SkillFilters): Promise<Skill[]> => {
   }
 
   sql += ` LIMIT ? OFFSET ?`;
-  params.push(limit, offset);
 
-  const results = await query(sql, params);
-  const skills = results.map(normalizeSkill);
-  return Array.from(new Map(skills.map((skill) => [skill.id, skill])).values());
+  const finalParams = [...joinParams, ...whereParams, limit, offset];
+
+  // 第一阶段：拉取轻量有序主键列表
+  const idResults = await query(sql, finalParams);
+  if (idResults.length === 0) return [];
+
+  const validIds = idResults
+    .map((r: any) => Number(r.id))
+    .filter((id) => Number.isInteger(id) && id > 0);
+
+  if (validIds.length === 0) return [];
+
+  // 第二阶段：主键批量带回全字段宽表数据
+  const inPlaceholders = validIds.join(',');
+  const fullSkillsResults = await query(`SELECT * FROM skills WHERE id IN (${inPlaceholders})`);
+
+  // 精准恢复原排序序列
+  const skillMap = new Map(fullSkillsResults.map((row: any) => [Number(row.id), normalizeSkill(row)]));
+  return validIds
+    .map((id) => skillMap.get(id))
+    .filter((s): s is Skill => s !== undefined);
 };
 
 export const getSitemapSlugs = async (limit: number, offset: number): Promise<string[]> => {
