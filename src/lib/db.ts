@@ -429,8 +429,8 @@ export const filterSkills = async (filters: SkillFilters): Promise<Skill[]> => {
     const offset = Number.isFinite(filters.offset) ? Math.max(Number(filters.offset), 0) : 0;
     const limit = Number.isFinite(filters.limit) ? Math.max(Number(filters.limit), 1) : 12;
 
-    // 精选池固定 20 条，到达 20 条后平滑返回空数组，终止流式滚动
-    if (offset >= 20) {
+    // 精选池已扩充至 200 条，到达 200 条后平滑返回空数组，终止流式滚动
+    if (offset >= 200) {
       return [];
     }
 
@@ -438,7 +438,7 @@ export const filterSkills = async (filters: SkillFilters): Promise<Skill[]> => {
     const featuredIds = catRes[0]?.featured_skill_ids;
 
     if (featuredIds) {
-      const skills = await getSkillsByIds(featuredIds, 20);
+      const skills = await getSkillsByIds(featuredIds, 200);
       return skills.slice(offset, offset + limit);
     }
   }
