@@ -134,7 +134,7 @@ const dictionary: Dictionary = {
   'category.seo.title_suffix': { en: 'Workflows?', cn: '工作流自动化？' },
   'category.seo.p1_start': { en: 'Agent Skills designed for', cn: '专为' },
   'category.seo.p1_end': { en: 'professionals provide deterministic, reproducible automation that eliminates repetitive manual work.', cn: '专业人士设计的智能体技能提供确定性、可重现的自动化，彻底消除重复性手工操作。' },
-  'category.seo.p2': { en: ' Whether you're building production workflows or exploring AI-assisted tooling, these vetted open-source skills integrate seamlessly with Claude Code, ChatGPT, and Cursor.', cn: '无论您是在构建生产工作流还是探索 AI 辅助工具，这些经过审核的开源技能都能与 Claude Code、ChatGPT 和 Cursor 无缝集成。' },
+  'category.seo.p2': { en: ' Whether you are building production workflows or exploring AI-assisted tooling, these vetted open-source skills integrate seamlessly with Claude Code, ChatGPT, and Cursor.', cn: '无论您是在构建生产工作流还是探索 AI 辅助工具，这些经过审核的开源技能都能与 Claude Code、ChatGPT 和 Cursor 无缝集成。' },
 
   // --- Category Descriptions ---
   'category.desc.content-communication': { en: 'Skills for writing, editing, and social media management.', cn: '用于写作、编辑和社交媒体管理的技能。' },
