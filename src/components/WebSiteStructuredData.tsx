@@ -44,7 +44,7 @@ export default function WebSiteStructuredData({
         '@id': 'https://skills.rest/#organization',
         name: 'skills.rest',
         url: 'https://skills.rest',
-        logo: 'https://skills.rest/og-image.png',
+        logo: 'https://skills.rest/icon.png',
         sameAs: [
           // ✅ 真实存在的官方开源 CLI 仓库
           'https://github.com/WupDev/skills_discovery',

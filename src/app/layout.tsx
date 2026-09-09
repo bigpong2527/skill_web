@@ -36,6 +36,10 @@ export async function generateMetadata(): Promise<Metadata> {
         title: mainTitle,
         description: mainDesc,
         metadataBase: new URL(siteUrl),
+        icons: {
+            icon: '/icon.png',
+            apple: '/apple-touch-icon.png',
+        },
         alternates: {
             canonical: '/',
         },
