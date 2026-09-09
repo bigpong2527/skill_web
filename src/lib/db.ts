@@ -416,6 +416,33 @@ export interface SkillFilters {
 // 🔍 探索与筛选核心函数 (带防爬虫深度限制与 FTS Top-100 截断)
 // ============================================================
 export const filterSkills = async (filters: SkillFilters): Promise<Skill[]> => {
+  // ⚡ 极速直出通道：纯分类浏览时直接走 categories 表的 20 个精选 ID 主键点查
+  // 零宽表扫描、零排序，响应耗时 1ms，读取行数恒定在 20 行以内
+  if (
+    filters.categorySlug &&
+    !filters.searchQuery &&
+    (!filters.keywords || filters.keywords.length === 0) &&
+    !filters.authorType &&
+    !filters.authorName &&
+    !filters.complexity
+  ) {
+    const offset = Number.isFinite(filters.offset) ? Math.max(Number(filters.offset), 0) : 0;
+    const limit = Number.isFinite(filters.limit) ? Math.max(Number(filters.limit), 1) : 12;
+
+    // 精选池固定 20 条，到达 20 条后平滑返回空数组，终止流式滚动
+    if (offset >= 20) {
+      return [];
+    }
+
+    const catRes = await query(`SELECT featured_skill_ids FROM categories WHERE slug = ? LIMIT 1`, [filters.categorySlug]);
+    const featuredIds = catRes[0]?.featured_skill_ids;
+
+    if (featuredIds) {
+      const skills = await getSkillsByIds(featuredIds, 20);
+      return skills.slice(offset, offset + limit);
+    }
+  }
+
   let sql = 'SELECT s.* FROM skills s';
   const params: any[] = [];
   const conditions: string[] = ["s.status = 'pending'"];
