@@ -69,7 +69,7 @@ export default function HomeHero({ totalSkills }: HomeHeroProps) {
         <span className="text-slate-300 dark:text-slate-700">·</span>
         <span className="flex items-center gap-1.5">
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.4)]" />
-          Updated Daily
+          One-click install
         </span>
       </div>
 
