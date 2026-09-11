@@ -37,9 +37,9 @@ export default function Footer({ totalSkills }: FooterProps) {
         {/* TIER 2: 4 核心功能导航组 (0 死链) */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 lg:gap-12 text-left">
           <div className="space-y-3">
-            <h4 className="font-mono text-[11px] font-bold text-slate-900 dark:text-slate-300 uppercase tracking-widest">
+            <h3 className="font-mono text-[11px] font-bold text-slate-900 dark:text-slate-300 uppercase tracking-widest">
               {t('footer.discovery', language)}
-            </h4>
+            </h3>
             <ul className="space-y-2 font-mono text-slate-500 dark:text-slate-400 text-xs">
               <li><Link href="/" className="hover:text-blue-600 dark:hover:text-white transition-colors">{t('skill.home', language)}</Link></li>
               <li><Link href="/explore" className="hover:text-blue-600 dark:hover:text-white transition-colors">{t('footer.explore_all', language)}</Link></li>
@@ -49,9 +49,9 @@ export default function Footer({ totalSkills }: FooterProps) {
           </div>
 
           <div className="space-y-3">
-            <h4 className="font-mono text-[11px] font-bold text-slate-900 dark:text-slate-300 uppercase tracking-widest">
+            <h3 className="font-mono text-[11px] font-bold text-slate-900 dark:text-slate-300 uppercase tracking-widest">
               {t('footer.developers', language)}
-            </h4>
+            </h3>
             <ul className="space-y-2 font-mono text-slate-500 dark:text-slate-400 text-xs">
               <li>
                 <Link
@@ -67,9 +67,9 @@ export default function Footer({ totalSkills }: FooterProps) {
           </div>
 
           <div className="space-y-3">
-            <h4 className="font-mono text-[11px] font-bold text-slate-900 dark:text-slate-300 uppercase tracking-widest">
+            <h3 className="font-mono text-[11px] font-bold text-slate-900 dark:text-slate-300 uppercase tracking-widest">
               {t('footer.platform', language)}
-            </h4>
+            </h3>
             <ul className="space-y-2 font-mono text-slate-500 dark:text-slate-400 text-xs">
               <li><a href="mailto:support@skills.rest" className="hover:text-blue-600 dark:hover:text-white transition-colors">{t('footer.about_support', language)}</a></li>
               <li><a href="https://x.com/DPZH2527" target="_blank" rel="noopener noreferrer" className="hover:text-blue-600 dark:hover:text-white transition-colors">{t('footer.founder_twitter', language)}</a></li>
@@ -77,9 +77,9 @@ export default function Footer({ totalSkills }: FooterProps) {
           </div>
 
           <div className="space-y-3">
-            <h4 className="font-mono text-[11px] font-bold text-slate-900 dark:text-slate-300 uppercase tracking-widest">
+            <h3 className="font-mono text-[11px] font-bold text-slate-900 dark:text-slate-300 uppercase tracking-widest">
               {t('footer.legal', language)}
-            </h4>
+            </h3>
             <ul className="space-y-2 font-mono text-slate-500 dark:text-slate-400 text-xs">
               <li><Link href="/privacy" className="hover:text-blue-600 dark:hover:text-white transition-colors">{t('footer.privacy_policy', language)}</Link></li>
               <li><Link href="/terms" className="hover:text-blue-600 dark:hover:text-white transition-colors">{t('footer.terms_of_service', language)}</Link></li>

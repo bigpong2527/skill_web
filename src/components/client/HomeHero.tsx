@@ -31,6 +31,8 @@ export default function HomeHero({ totalSkills }: HomeHeroProps) {
         role="search"
         className="relative w-full max-w-2xl mx-auto group mb-4"
       >
+        <label htmlFor="hero-search-input" className="sr-only">Search Agent Skills</label>
+
         <div className="absolute inset-y-0 left-0 pl-4.5 flex items-center pointer-events-none text-slate-400 dark:text-slate-500 group-focus-within:text-blue-600 transition-colors">
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="11" cy="11" r="8" />
@@ -39,6 +41,8 @@ export default function HomeHero({ totalSkills }: HomeHeroProps) {
         </div>
 
         <input
+          id="hero-search-input"
+          aria-label="Search agent skills"
           type="text"
           name="q"
           autoComplete="off"

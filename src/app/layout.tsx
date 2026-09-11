@@ -76,6 +76,10 @@ export default async function RootLayout({
 
     return (
         <html lang="en" suppressHydrationWarning>
+            <head>
+                <link rel="preconnect" href="https://avatars.githubusercontent.com" crossOrigin="anonymous" />
+                <link rel="dns-prefetch" href="https://avatars.githubusercontent.com" />
+            </head>
             <body className={`${inter.variable} ${jetbrainsMono.variable} bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-200 font-sans transition-colors duration-300 min-h-screen flex flex-col`}>
                 <div className="noise-overlay"></div>
 

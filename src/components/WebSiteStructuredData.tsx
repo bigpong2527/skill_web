@@ -24,6 +24,17 @@ export default function WebSiteStructuredData({
         alternateName: 'Agent Skills Library',
         description: siteDescription,
         inLanguage: 'en-US',
+        about: [
+          { '@type': 'Thing', name: 'Agent Skills Library' },
+          { '@type': 'Thing', name: 'Agent Skills' },
+          { '@type': 'Thing', name: 'AI Skills' },
+          { '@type': 'Thing', name: 'Claude Skills' },
+          { '@type': 'Thing', name: 'ChatGPT' },
+          { '@type': 'Thing', name: 'Codex' },
+          { '@type': 'Thing', name: 'best skills' },
+          { '@type': 'Thing', name: 'agent' },
+          { '@type': 'Thing', name: 'AI' },
+        ],
         publisher: {
           '@type': 'Organization',
           '@id': 'https://skills.rest/#organization',
