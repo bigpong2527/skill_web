@@ -16,7 +16,7 @@ const dictionary: Dictionary = {
 
   // --- Home Hero ---
   'home.hero.title': { en: 'Agent Skills Library', cn: '智能体技能库' },
-  'home.hero.subtitle': { en: 'Equip ChatGPT and Claude with expert-level skills. One-click install.', cn: '为 ChatGPT 与 Claude 装配专家级技能。一键安装。' },
+  'home.hero.subtitle': { en: 'Equip ChatGPT and Claude with expert-level skills.', cn: '为 ChatGPT 与 Claude 装配专家级技能。' },
   'home.hero.search_placeholder': { en: "Search by task, tool, or keyword (e.g. 'pdf extraction', 'tdd workflow')...", cn: "按任务、工具或关键词搜索 (例如 'pdf extraction', 'tdd workflow')..." },
   'home.hero.search_btn': { en: 'Search', cn: '搜索' },
 
