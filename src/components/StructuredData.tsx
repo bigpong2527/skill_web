@@ -12,15 +12,15 @@ interface StructuredDataProps {
   faqs?: FAQ[];
 }
 
-// ✅ 解决 SQLite 带空格时间导致 Google 报 Invalid ISO 8601 Date 警告
-function toIsoDate(dateStr?: string | null): string {
-  if (!dateStr || dateStr === 'NULL') return '2025-10-01';
+// ✅ 改造后：遇到非法或空时间返回 undefined，JSON.stringify 会自动忽略该字段，不输出假日期
+function toIsoDate(dateStr?: string | null): string | undefined {
+  if (!dateStr || dateStr === 'NULL') return undefined;
   try {
     const d = new Date(dateStr.replace(' ', 'T'));
-    if (isNaN(d.getTime())) return '2025-10-01';
+    if (isNaN(d.getTime()) || d.getFullYear() < 2015) return undefined;
     return d.toISOString().split('T')[0];
   } catch {
-    return '2025-10-01';
+    return undefined;
   }
 }
 
@@ -79,7 +79,7 @@ export default function StructuredData({
     ].join(', '),
     offers: {
       '@type': 'Offer',
-      price: '0',
+      price: 0, // ✅ 去除引号，转为合法 Number 类型（原代码为 '0'）
       priceCurrency: 'USD',
       availability: 'https://schema.org/InStock',
     },
@@ -91,8 +91,8 @@ export default function StructuredData({
       '@type': 'AggregateRating',
       ratingValue: skill.rating.toFixed(1),
       ratingCount: skill.ratings_count,
-      bestRating: '5',
-      worstRating: '1',
+      bestRating: 5, // ✅ 去除引号，转为合法 Number 类型（原代码为 '5'）
+      worstRating: 1, // ✅ 去除引号，转为合法 Number 类型（原代码为 '1'）
     };
   }
 
@@ -125,30 +125,8 @@ export default function StructuredData({
     ],
   };
 
-  // 3. 构造干净的知识图谱树（无多余中间变量，100% 杜绝 null 入树）
-  const validFaqs = faqs.filter(
-    (faq) =>
-      typeof faq?.question === 'string' &&
-      faq.question.trim() &&
-      typeof faq?.answer === 'string' &&
-      faq.answer.trim()
-  );
-
+  // ✅ 保持纯净的 [软件应用 + 面包屑] 核心主实体，停用无用的 FAQPage 机器标记
   const graphList: any[] = [softwareSchema, breadcrumbSchema];
-
-  if (validFaqs.length > 0) {
-    graphList.push({
-      '@type': 'FAQPage',
-      mainEntity: validFaqs.map((faq) => ({
-        '@type': 'Question',
-        name: faq.question,
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: faq.answer,
-        },
-      })),
-    });
-  }
 
   return (
     <script

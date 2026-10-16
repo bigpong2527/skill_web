@@ -24,17 +24,7 @@ export default function WebSiteStructuredData({
         alternateName: 'Agent Skills Library',
         description: siteDescription,
         inLanguage: 'en-US',
-        about: [
-          { '@type': 'Thing', name: 'Agent Skills Library' },
-          { '@type': 'Thing', name: 'Agent Skills' },
-          { '@type': 'Thing', name: 'AI Skills' },
-          { '@type': 'Thing', name: 'Claude Skills' },
-          { '@type': 'Thing', name: 'ChatGPT' },
-          { '@type': 'Thing', name: 'Codex' },
-          { '@type': 'Thing', name: 'best skills' },
-          { '@type': 'Thing', name: 'agent' },
-          { '@type': 'Thing', name: 'AI' },
-        ],
+        // ✅ 已彻底移除原有的 about: [ ... ] 9 个违规关键词堆砌
         publisher: {
           '@type': 'Organization',
           '@id': 'https://skills.rest/#organization',
@@ -57,20 +47,9 @@ export default function WebSiteStructuredData({
         url: 'https://skills.rest',
         logo: 'https://skills.rest/icon.png',
         sameAs: [
-          // ✅ 真实存在的官方开源 CLI 仓库
           'https://github.com/WupDev/skills_discovery',
         ],
-        knowsAbout: [
-          'Agent Skills Library',
-          'Agent Skills',
-          'AI Skills',
-          'Claude Skills',
-          'ChatGPT',
-          'Codex',
-          'best skills',
-          'agent',
-          'AI',
-        ],
+        // ✅ 已移除 Organization 中堆砌的 knowsAbout 泛词，保持实体定义合规
         contactPoint: {
           '@type': 'ContactPoint',
           contactType: 'customer support',

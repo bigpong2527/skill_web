@@ -16,20 +16,16 @@ function escapeXml(unsafe: string): string {
   });
 }
 
-// 标准 YYYY-MM-DD 格式转换（精简 40% XML 体积，符合 Google 规范）
-function formatLastmod(dateStr?: string | null): string {
-  if (!dateStr || dateStr === 'NULL') {
-    return '2025-10-01';
-  }
+// ✅ 改造后：只有真实、合法的时间戳才输出 <lastmod> 标签，空值直接返回空字符串，绝不产生 <lastmod>null</lastmod>
+function renderLastmod(dateStr?: string | null): string {
+  if (!dateStr || dateStr === 'NULL') return '';
   try {
-    // 关键修复：SQLite datetime 补齐 T
     const d = new Date(dateStr.replace(' ', 'T'));
-    if (isNaN(d.getTime()) || d.getFullYear() < 2000) {
-      return '2025-10-01';
-    }
-    return d.toISOString().split('T')[0];
+    if (isNaN(d.getTime()) || d.getFullYear() < 2015) return '';
+    const dateFormatted = d.toISOString().split('T')[0];
+    return `<lastmod>${dateFormatted}</lastmod>`;
   } catch {
-    return '2025-10-01';
+    return '';
   }
 }
 
@@ -81,7 +77,7 @@ export async function GET(
     xmlContent = authorItems.map(item => `
   <url>
     <loc>${BASE_URL}/company/${escapeXml(encodeURI(item.login.toLowerCase()))}</loc>
-    <lastmod>${formatLastmod(item.updated_at)}</lastmod>
+    ${renderLastmod(item.updated_at)}
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>`).join('');
@@ -93,7 +89,7 @@ export async function GET(
     xmlContent = repoItems.map(item => `
   <url>
     <loc>${BASE_URL}/repo/${escapeXml(encodeURI(item.owner))}/${escapeXml(encodeURI(item.name))}</loc>
-    <lastmod>${formatLastmod(item.updated_at)}</lastmod>
+    ${renderLastmod(item.updated_at)}
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>`).join('');
@@ -115,8 +111,8 @@ export async function GET(
     xmlContent = skillItems.map(item => `
   <url>
     <loc>${BASE_URL}/skill/${escapeXml(encodeURI(item.slug))}</loc>
-    <lastmod>${formatLastmod(item.updated_at)}</lastmod>
-    <changefreq>weekly</changefreq>
+    ${renderLastmod(item.updated_at)}
+    <changefreq>never</changefreq>
     <priority>0.7</priority>
   </url>`).join('');
   }

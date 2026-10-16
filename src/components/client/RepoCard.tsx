@@ -56,12 +56,12 @@ export default function RepoCard({ repo, lang: propLang }: RepoCardProps) {
     <Link
       href={`/repo/${encodeURIComponent(repo.owner)}/${encodeURIComponent(repo.name)}`}
       prefetch={false}
-      className="group block h-full select-none"
+      className="group block h-full"
     >
       <div className="relative h-full flex flex-col bg-white dark:bg-[#0B1121] rounded-2xl border border-slate-200/80 dark:border-white/10 p-5 transition-all duration-300 ease-out hover:border-blue-500/50 hover:shadow-xl hover:shadow-blue-500/5 dark:hover:bg-[#0F172A] hover:-translate-y-1">
         
         {/* 1. 顶部：作者头像与名称 (左侧独立跳转) | ⭐ Star 勋章 (右上角高亮) */}
-        <div className="flex items-center justify-between gap-3 mb-3">
+        <div className="flex items-center justify-between gap-3 mb-3 select-none">
           
           {/* 左侧作者区：带防冒泡独立跳转 */}
           <div
@@ -69,7 +69,8 @@ export default function RepoCard({ repo, lang: propLang }: RepoCardProps) {
             tabIndex={0}
             onClick={handleAuthorClick}
             onKeyDown={handleAuthorKeyDown}
-            className="flex items-center gap-2 min-w-0 hover:opacity-80 transition-opacity z-10 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-md"
+            aria-label={`View profile of ${repo.owner}`}
+            className="flex items-center gap-2 min-w-0 hover:opacity-80 transition-opacity z-10 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-md cursor-pointer"
             title={`View all skills by ${repo.owner}`}
           >
             <img
@@ -79,6 +80,9 @@ export default function RepoCard({ repo, lang: propLang }: RepoCardProps) {
               height={28}
               className="w-7 h-7 rounded-full border border-slate-200 dark:border-white/10 object-cover shrink-0 bg-slate-100 dark:bg-slate-800"
               loading="lazy"
+              onError={(e) => {
+                (e.currentTarget as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(repo.owner)}&background=0D8ABC&color=fff&size=40`;
+              }}
             />
             <span className="text-xs font-mono text-slate-500 dark:text-slate-400 truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
               {repo.owner}
@@ -87,7 +91,7 @@ export default function RepoCard({ repo, lang: propLang }: RepoCardProps) {
 
           {/* 右上角：GitHub 原生标准金色 Star 勋章 */}
           <div
-            className="flex items-center gap-1.5 text-amber-600 dark:text-amber-400 font-bold bg-amber-50 dark:bg-amber-500/10 px-2 py-0.5 rounded-md border border-amber-200/80 dark:border-amber-500/20 text-[11px] font-mono shrink-0"
+            className="flex items-center gap-1.5 text-amber-600 dark:text-amber-400 font-bold bg-amber-50 dark:bg-amber-500/10 px-2 py-0.5 rounded-md border border-amber-200/80 dark:border-amber-500/20 text-[11px] font-mono shrink-0 select-none"
             title={`${repo.stars.toLocaleString()} GitHub stars`}
           >
             <svg className="w-3 h-3 text-amber-500 fill-amber-400 shrink-0" viewBox="0 0 16 16" version="1.1" aria-hidden="true">

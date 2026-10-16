@@ -41,7 +41,7 @@ export default function MarkdownView({ content }: MarkdownViewProps) {
             </pre>
           ),
           blockquote: ({ children }) => (
-            <blockquote className="border-l-4 border-blue-500 pl-4 py-2 my-4 bg-blue-50 dark:bg-blue-500/10 text-slate-700 dark:text-slate-300 italic rounded-r">
+            <blockquote className="border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 my-4 bg-slate-50/70 dark:bg-white/[0.02] text-slate-700 dark:text-slate-300 italic">
               {children}
             </blockquote>
           ),

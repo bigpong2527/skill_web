@@ -102,7 +102,7 @@ export default async function RepoSuitePage({ params }: PageProps) {
           url: `${baseUrl}/company/${encodeURIComponent(repo.owner.toLowerCase())}`,
         },
         url: pageUrl,
-        offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD', availability: 'https://schema.org/InStock' },
+        offers: { '@type': 'Offer', price: 0, priceCurrency: 'USD', availability: 'https://schema.org/InStock' },
       },
       ...(faqs.length > 0
         ? [

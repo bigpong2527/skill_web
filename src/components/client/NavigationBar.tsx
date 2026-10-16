@@ -16,22 +16,23 @@ const NavigationBar: React.FC<NavigationBarProps> = ({ skillName, categoryName, 
   const { language } = useTheme();
 
   return (
-    <nav className="flex items-center text-sm text-slate-400 mb-6 overflow-hidden whitespace-nowrap">
-      <Link href="/" className="hover:text-white transition-colors">{t('skill.home', language)}</Link>
-      <span className="mx-2 text-slate-600">/</span>
+    <nav aria-label="Breadcrumb" className="flex items-center text-sm text-slate-500 dark:text-slate-400 mb-6 overflow-hidden whitespace-nowrap">
+      <Link href="/" className="hover:text-slate-900 dark:hover:text-white transition-colors">{t('skill.home', language)}</Link>
+      <span className="mx-2 text-slate-300 dark:text-slate-600">/</span>
       {categoryName && categorySlug ? (
         <>
-          <Link href={`/category/${categorySlug}`} className="hover:text-white transition-colors">{t(`category.${categorySlug}`, language)}</Link>
-          <span className="mx-2 text-slate-600">/</span>
+          <Link href={`/category/${categorySlug}`} className="hover:text-slate-900 dark:hover:text-white transition-colors">{t(`category.${categorySlug}`, language)}</Link>
+          <span className="mx-2 text-slate-300 dark:text-slate-600">/</span>
         </>
       ) : null}
       {skillName && (
-        <span className="text-slate-200 truncate max-w-[200px] sm:max-w-md">{skillName}</span>
+        <span className="text-slate-900 dark:text-slate-200 font-medium truncate max-w-[200px] sm:max-w-md">{skillName}</span>
       )}
       {/* If we are just browsing a category without a skill */}
       {!skillName && categoryName && categorySlug && (
-        <span className="text-slate-200 truncate">{t(`category.${categorySlug}`, language)}</span>
-      )}</nav>
+        <span className="text-slate-900 dark:text-slate-200 font-medium truncate">{t(`category.${categorySlug}`, language)}</span>
+      )}
+    </nav>
   );
 };
 

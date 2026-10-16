@@ -81,10 +81,9 @@ const CategorySkillsList: React.FC<CategorySkillsListProps> = ({ initialSkills, 
             {hasMore && (
                 <div ref={observerTarget} className="flex justify-center py-8 w-full min-h-[60px]">
                     {isLoading ? (
-                        <div className="flex items-center gap-3 px-4 py-2 bg-slate-100 dark:bg-slate-900 rounded-full">
-                            <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
-                            <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce delay-75"></div>
-                            <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce delay-150"></div>
+                        <div className="flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-900/80 border border-slate-200/60 dark:border-white/5 rounded-full text-xs font-mono text-slate-500">
+                            <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
+                            <span>Loading more skills...</span>
                         </div>
                     ) : <div className="h-10 w-full" />}
                 </div>

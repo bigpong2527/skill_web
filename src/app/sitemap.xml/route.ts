@@ -15,7 +15,7 @@ export async function GET() {
   const totalAuthorChunks = Math.max(1, Math.ceil(totalAuthors / SITEMAP_URL_LIMIT));
 
   const now = new Date();
-  const FIXED_DATE = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1)).toISOString();
+  const FIXED_DATE = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1)).toISOString().split('T')[0];
 
   const skillSitemaps = Array.from({ length: totalSkillChunks }, (_, i) => `
   <sitemap><loc>${BASE_URL}/sitemap-index/${i}.xml</loc><lastmod>${FIXED_DATE}</lastmod></sitemap>`).join('');

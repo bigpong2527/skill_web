@@ -38,16 +38,24 @@ Skill: ${skill.name}
 Source: ${skill.source_url || repoRoot}
 Command: ${installCommand}`;
 
-  const copyCommand = () => {
-    navigator.clipboard.writeText(installCommand);
-    setCopiedCmd(true);
-    setTimeout(() => setCopiedCmd(false), 2000);
+  const copyCommand = async () => {
+    try {
+      await navigator.clipboard.writeText(installCommand);
+      setCopiedCmd(true);
+      setTimeout(() => setCopiedCmd(false), 2000);
+    } catch {
+      setCopiedCmd(false);
+    }
   };
 
-  const copyPrompt = () => {
-    navigator.clipboard.writeText(promptInstruction);
-    setCopiedPrompt(true);
-    setTimeout(() => setCopiedPrompt(false), 2000);
+  const copyPrompt = async () => {
+    try {
+      await navigator.clipboard.writeText(promptInstruction);
+      setCopiedPrompt(true);
+      setTimeout(() => setCopiedPrompt(false), 2000);
+    } catch {
+      setCopiedPrompt(false);
+    }
   };
 
   return (
@@ -55,10 +63,12 @@ Command: ${installCommand}`;
 
       {/* 顶部：包管理器三选一切换 (npx / pnpm / bunx) */}
       <div className="flex items-center justify-between gap-2">
-        <div className="flex p-0.5 bg-slate-200/70 dark:bg-slate-800 rounded-lg">
+        <div role="tablist" aria-label="Package Manager" className="flex p-0.5 bg-slate-200/70 dark:bg-slate-800 rounded-lg">
           {PKG_MANAGERS.map((pkg) => (
             <button
               key={pkg.id}
+              role="tab"
+              aria-selected={selectedPkg === pkg.id}
               onClick={() => setSelectedPkg(pkg.id)}
               className={`px-3 py-1 rounded-md transition-all ${
                 selectedPkg === pkg.id

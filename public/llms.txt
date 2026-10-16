@@ -1,30 +1,26 @@
 # skills.rest
-> 113,000+ vetted agent skills for Claude, OpenClaw & Codex. One click to connect the library to your AI agent. Use on demand.
+> 645,000+ vetted AI agent skills for ChatGPT, Claude, Codex & Gemini. One click to connect the library to your AI agent. Use on demand.
 
 ## What is skills.rest?
 
-skills.rest is a curated, open library of executable AI agent skills. Each skill is a self-contained, installable package that extends the capabilities of AI agents like Claude. Skills cover 10 professional domains and are contributed by official partners, verified authors, and the community.
+skills.rest is a curated, open library of executable AI agent skills. Each skill is a self-contained, installable package that extends the capabilities of AI agents like Claude Code, ChatGPT, Codex, OpenClaw, and Gemini. Skills cover 10 professional domains and are contributed by official tech leaders (Microsoft, Anthropic, AWS, Nvidia, Google), verified authors, and the community.
 
 ## Key Features
 
-- 113,000+ vetted and indexed agent skills
-- One-click installation via Claude Code CLI
+- 645,000+ vetted and indexed agent skills
+- One-click installation via npx, pnpm, and bun
 - 10 professional domain categories
-- Supports Claude Code, Claude.ai, and API integrations
+- Supports Claude Code, ChatGPT, Codex, Antigravity, and custom AI agents
 - Free to use, community-driven
 
 ## How to Install a Skill
 
-**Claude Code (recommended):**
-Run the install command shown on any skill detail page in your terminal (Bash/Zsh or PowerShell).
+**CLI (recommended):**
+Run the install command shown on any skill detail page in your terminal (Bash/Zsh or PowerShell):
+`npx skills add <repo_url> --skill <skill_slug>`
 
-**Claude.ai (manual):**
-1. Download the skill .zip package from the skill detail page
-2. Upload the extracted files in your Claude.ai project settings
-3. Activate with the /skill command
-
-**API:**
-Reference the skill package URL when calling the Anthropic API in your code.
+**Agent Integration:**
+Use the Agent Connect helper on https://skills.rest to automatically install the skill discovery helper directly into your agent's skills directory.
 
 ## Categories
 
@@ -43,7 +39,9 @@ Reference the skill package URL when calling the Anthropic API in your code.
 
 - https://skills.rest — Home, trending and recently updated skills
 - https://skills.rest/explore — Full skill library with search and filters
-- https://skills.rest/categories — Browse all 10 professional domains
+- https://skills.rest/best-skills — Top starred agent skill repositories
+- https://skills.rest/companies — Directory of official tech organizations and developers
+- https://skills.rest/skills-search-cli — Skill discovery helper documentation for agents
 - https://skills.rest/category/software-engineering — Software Engineering skills
 - https://skills.rest/category/data-analytics — Data & Analytics skills
 - https://skills.rest/category/marketing-sales — Marketing & Sales skills

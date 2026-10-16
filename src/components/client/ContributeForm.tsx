@@ -53,10 +53,11 @@ export default function ContributeForm() {
 
         {/* GitHub 链接输入 (必填) */}
         <div>
-          <label className="block text-xs font-mono font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+          <label htmlFor="contrib_repo_url" className="block text-xs font-mono font-bold text-slate-700 dark:text-slate-300 mb-1.5">
             {t('contribute.repo_label', language)} <span className="text-rose-500">*</span>
           </label>
           <input
+            id="contrib_repo_url"
             type="url"
             name="repo_url"
             required
@@ -68,10 +69,11 @@ export default function ContributeForm() {
         {/* 开发者联系方式 (选填) */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-xs font-mono font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+            <label htmlFor="contrib_email" className="block text-xs font-mono font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
               {t('contribute.contact_label', language)}
             </label>
             <input
+              id="contrib_email"
               type="text"
               name="email"
               placeholder="you@domain.com or @handle"
@@ -80,10 +82,11 @@ export default function ContributeForm() {
           </div>
 
           <div>
-            <label className="block text-xs font-mono font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+            <label htmlFor="contrib_notes" className="block text-xs font-mono font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
               {t('contribute.notes_label', language)}
             </label>
             <input
+              id="contrib_notes"
               type="text"
               name="notes"
               placeholder="e.g. Software Engineering / Claude Code"
@@ -92,18 +95,20 @@ export default function ContributeForm() {
           </div>
         </div>
 
-        {/* 状态提示反馈 */}
-        {status?.error && (
-          <div className="p-3 bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/50 rounded-xl text-xs text-rose-600 dark:text-rose-400 font-mono">
-            ❌ {status.error}
-          </div>
-        )}
+        {/* 状态提示反馈 (动态无障碍感知) */}
+        <div aria-live="polite">
+          {status?.error && (
+            <div role="alert" className="p-3 bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/50 rounded-xl text-xs text-rose-600 dark:text-rose-400 font-mono">
+              ❌ {status.error}
+            </div>
+          )}
 
-        {status?.success && (
-          <div className="p-3 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/50 rounded-xl text-xs text-emerald-700 dark:text-emerald-400 font-mono">
-            {status.message}
-          </div>
-        )}
+          {status?.success && (
+            <div role="status" className="p-3 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/50 rounded-xl text-xs text-emerald-700 dark:text-emerald-400 font-mono">
+              {status.message}
+            </div>
+          )}
+        </div>
 
         {/* 提交按钮 */}
         <button

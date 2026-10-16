@@ -205,8 +205,8 @@ export default function AuthorPageContent({
               {hasMore && searchQuery.trim() === '' && selectedRepo === 'all' && (
                 <div ref={observerTarget} className="flex justify-center py-8 w-full min-h-[50px]">
                   {isLoading && (
-                    <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-slate-100 dark:bg-slate-800 text-xs font-mono text-slate-500">
-                      <span className="w-2 h-2 rounded-full bg-blue-500 animate-bounce"></span>
+                    <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200/60 dark:border-white/5 text-xs font-mono text-slate-500">
+                      <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
                       <span>Loading more skills...</span>
                     </div>
                   )}

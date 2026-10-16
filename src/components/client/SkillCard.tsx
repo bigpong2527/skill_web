@@ -101,13 +101,13 @@ const SkillCard: React.FC<SkillCardProps> = ({ skill, lang: propLang }) => {
     <Link
       href={`/skill/${encodeURIComponent(skill.slug)}`}
       prefetch={false}
-      className="group block h-full select-none"
+      className="group block h-full"
       onClick={handleCardClick}
     >
       <div className="relative h-full flex flex-col bg-white dark:bg-[#0B1121] rounded-2xl border border-slate-200/80 dark:border-white/10 p-5 transition-all duration-300 ease-out hover:border-blue-500/50 hover:shadow-xl hover:shadow-blue-500/5 dark:hover:bg-[#0F172A] hover:-translate-y-1">
 
         {/* 1. Top Bar: 作者 Avatar + 名字 (左) | Star 或 版本号 (右) */}
-        <div className="flex items-center justify-between gap-3 mb-4">
+        <div className="flex items-center justify-between gap-3 mb-4 select-none">
           
           {/* 左侧作者区：阻止冒泡实现独立跳转 (支持鼠标与键盘操作) */}
           <div 
@@ -115,7 +115,8 @@ const SkillCard: React.FC<SkillCardProps> = ({ skill, lang: propLang }) => {
             tabIndex={0}
             onClick={handleAuthorClick}
             onKeyDown={handleAuthorKeyDown}
-            className="flex items-center gap-2 min-w-0 hover:opacity-80 transition-opacity z-10 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-md"
+            aria-label={`View profile of ${skill.author_name}`}
+            className="flex items-center gap-2 min-w-0 hover:opacity-80 transition-opacity z-10 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-md cursor-pointer"
             title={`View all skills by ${skill.author_name}`}
           >
             <img
@@ -125,6 +126,9 @@ const SkillCard: React.FC<SkillCardProps> = ({ skill, lang: propLang }) => {
               height={28}
               className="w-7 h-7 rounded-full border border-slate-200 dark:border-white/10 object-cover shrink-0 bg-slate-100 dark:bg-slate-800"
               loading="lazy"
+              onError={(e) => {
+                (e.currentTarget as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(skill.author_name)}&background=0D8ABC&color=fff&size=40`;
+              }}
             />
             <span className="text-xs font-mono text-slate-500 dark:text-slate-400 truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
               {skill.author_name}
@@ -133,7 +137,7 @@ const SkillCard: React.FC<SkillCardProps> = ({ skill, lang: propLang }) => {
 
           {/* 右上角：有 Star 显 Star，无 Star 时纯净留白 */}
           {skill.stars != null && skill.stars > 0 && (
-            <div className="flex items-center gap-1.5 text-amber-600 dark:text-amber-400 font-bold bg-amber-50 dark:bg-amber-500/10 px-2 py-0.5 rounded-md border border-amber-200/80 dark:border-amber-500/20 text-[11px] font-mono shrink-0" title={`${skill.stars.toLocaleString()} GitHub stars`}>
+            <div className="flex items-center gap-1.5 text-amber-600 dark:text-amber-400 font-bold bg-amber-50 dark:bg-amber-500/10 px-2 py-0.5 rounded-md border border-amber-200/80 dark:border-amber-500/20 text-[11px] font-mono shrink-0 select-none" title={`${skill.stars.toLocaleString()} GitHub stars`}>
               <span aria-hidden="true">⭐</span>
               <span>{formattedStars}</span>
             </div>
