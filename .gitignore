@@ -50,3 +50,9 @@ build/
 
 # 系统文件
 .DS_Store
+
+# 数据库文件与 SQL 转储 (包含数据库结构与数据，禁止上传)
+*.sql
+*.sqlite
+*.db
+*.dump
