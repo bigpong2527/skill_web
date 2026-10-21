@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>skills.rest 品味升级视觉交互预览 (Taste-Skill Redesign Preview)</title>
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#eff6ff',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* 噪点背景模拟生产环境 */
+    .bg-noise {
+      background-image: radial-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+      background-size: 24px 24px;
+    }
+    .light .bg-noise {
+      background-image: radial-gradient(rgba(0, 0, 0, 0.04) 1px, transparent 1px);
+    }
+    /* 徽标平滑变色 */
+    .logo-filter {
+      filter: grayscale(100%) opacity(0.6);
+      transition: filter 0.2s ease, transform 0.2s ease;
+    }
+    .logo-filter:hover {
+      filter: grayscale(0%) opacity(1);
+    }
+  </style>
+</head>
+<body class="bg-[#020617] text-slate-200 font-sans antialiased min-h-screen flex flex-col selection:bg-blue-500/30 selection:text-white transition-colors duration-200">
+
+  <!-- ============================================================
+       顶层控制条：页面切换、对比模式切换、明暗主题切换
+       ============================================================ -->
+  <header class="sticky top-0 z-50 bg-[#0B1121]/90 backdrop-blur-md border-b border-white/10 px-4 py-3 shadow-md">
+    <div class="max-w-[1440px] mx-auto flex flex-wrap items-center justify-between gap-3 text-xs">
+      
+      <!-- 品牌标识与说明 -->
+      <div class="flex items-center gap-3">
+        <span class="font-bold text-sm text-white tracking-tight flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+          skills<span class="text-blue-500">.</span>rest
+        </span>
+        <span class="text-slate-500">|</span>
+        <span class="font-medium text-slate-300 hidden sm:inline">🎨 前端品味重构实时对照看板</span>
+      </div>
+
+      <!-- 视图切换（3大核心界面） -->
+      <div class="flex items-center bg-slate-900 border border-white/10 rounded-lg p-1 gap-1">
+        <button onclick="setSurface('home')" id="btn-surface-home" class="px-3 py-1 rounded font-medium bg-blue-600 text-white transition-colors">
+          🏠 首页核心区
+        </button>
+        <button onclick="setSurface('skill')" id="btn-surface-skill" class="px-3 py-1 rounded font-medium text-slate-400 hover:text-white transition-colors">
+          ⚡ 技能详情页
+        </button>
+        <button onclick="setSurface('explore')" id="btn-surface-explore" class="px-3 py-1 rounded font-medium text-slate-400 hover:text-white transition-colors">
+          🧭 探索与空态
+        </button>
+      </div>
+
+      <!-- 对比模式切换（现状 vs 改版 vs 并排） -->
+      <div class="flex items-center bg-slate-900 border border-white/10 rounded-lg p-1 gap-1">
+        <button onclick="setMode('after')" id="btn-mode-after" class="px-3 py-1 rounded font-medium bg-emerald-600/30 text-emerald-400 border border-emerald-500/30 transition-colors">
+          ✨ 品味升级后 (After)
+        </button>
+        <button onclick="setMode('before')" id="btn-mode-before" class="px-3 py-1 rounded font-medium text-slate-400 hover:text-white transition-colors">
+          ⚠️ 现状模板感 (Before)
+        </button>
+        <button onclick="setMode('split')" id="btn-mode-split" class="px-3 py-1 rounded font-medium text-slate-400 hover:text-white transition-colors">
+          ⚖️ 左右并排比对
+        </button>
+      </div>
+
+      <!-- 主题切换 -->
+      <button onclick="toggleTheme()" id="btn-theme" class="px-2.5 py-1.5 rounded-lg border border-white/10 bg-slate-900 text-slate-300 hover:text-white flex items-center gap-1.5 transition-colors">
+        <span id="theme-icon">🌙</span>
+        <span id="theme-label" class="hidden md:inline">Dark</span>
+      </button>
+
+    </div>
+  </header>
+
+  <!-- ============================================================
+       改动要点实时解说栏 (Floating Change Inspector)
+       ============================================================ -->
+  <aside class="bg-blue-950/40 border-b border-blue-500/20 px-4 py-2.5 text-xs text-blue-200">
+    <div class="max-w-[1440px] mx-auto flex flex-wrap items-center justify-between gap-2" id="inspector-notes">
+      <div class="flex items-center gap-2">
+        <span class="px-2 py-0.5 rounded bg-blue-500/20 text-blue-300 font-mono font-bold text-[10px] uppercase">品味法则应用</span>
+        <span id="inspector-text">当前展示：已剔除标题小彩点、收敛 Mono 等宽字体、去除卡片静态浅阴影与悬浮微跳，提升专业软件档案库质感。</span>
+      </div>
+      <span class="text-slate-400 text-[11px] font-mono">247 Curated Sites Study · Anti-Slop System</span>
+    </div>
+  </aside>
+
+  <!-- ============================================================
+       主要内容展示容器
+       ============================================================ -->
+  <main class="flex-grow p-4 sm:p-8 max-w-[1440px] mx-auto w-full space-y-12 bg-noise">
+
+    <!-- ==========================================================
+         VIEW 1: 首页核心区 (Homepage Hero + Leaders + Cards + FAQ)
+         ========================================================== -->
+    <div id="view-home" class="space-y-16">
+
+      <!-- 并排模式容器（Split Mode） -->
+      <div id="home-split-container" class="hidden grid grid-cols-1 xl:grid-cols-2 gap-8 items-start">
+        <!-- 左列：现状 (Before) -->
+        <div class="border border-red-500/20 rounded-2xl p-6 bg-red-950/5 space-y-8">
+          <div class="flex items-center justify-between pb-3 border-b border-red-500/20">
+            <span class="px-2 py-0.5 rounded bg-red-500/20 text-red-400 font-mono font-bold text-[11px]">⚠️ 现状 (Before - 典型 AI 模板感)</span>
+            <span class="text-[11px] text-slate-400">等宽字体泛滥 / 标题圆点 / 虚框牢笼 / 假编号</span>
+          </div>
+          <!-- 现状 Hero -->
+          <div class="text-center space-y-4">
+            <h1 class="text-3xl font-bold tracking-tight text-white">Find, install, and run 645,000+ AI agent skills</h1>
+            <p class="text-sm text-slate-400 max-w-lg mx-auto">Instant capabilities for Claude Code, Codex, and Cursor.</p>
+            <div class="max-w-md mx-auto">
+              <div class="flex items-center h-14 bg-[#121826] border border-white/10 rounded-2xl px-4 shadow-sm">
+                <span class="text-slate-500 mr-3">🔍</span>
+                <input disabled class="bg-transparent text-sm w-full outline-none text-slate-400" value="pdf extractor">
+                <button class="bg-blue-600 text-white text-xs px-4 py-2 rounded-xl">Search</button>
+              </div>
+              <!-- AI Tell: 绿点重复排比条 -->
+              <div class="flex items-center justify-center gap-3 text-xs text-slate-500 font-mono mt-3">
+                <span class="flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>Vetted</span> ·
+                <span class="flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>100% Free</span> ·
+                <span class="flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>One-click install</span>
+              </div>
+            </div>
+          </div>
+          <!-- 现状 信任墙 -->
+          <div class="space-y-3">
+            <div class="flex items-center gap-2 border-b border-white/10 pb-2">
+              <!-- AI Tell: 标题前蓝色圆点 -->
+              <span class="w-2 h-2 rounded-full bg-blue-600 shadow-[0_0_8px_rgba(59,130,246,0.6)]"></span>
+              <h2 class="text-xs font-mono font-bold tracking-widest text-slate-300 uppercase">OFFICIAL ORGANIZATIONS</h2>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+              <!-- AI Tell: 1px 线框格子牢笼 + shadow-sm -->
+              <div class="flex items-center gap-3 p-3 rounded-xl bg-[#0B1121] border border-white/5 shadow-sm">
+                <div class="w-8 h-8 rounded bg-white/10 flex items-center justify-center text-xs font-bold">MS</div>
+                <div class="min-w-0">
+                  <div class="text-xs font-mono font-bold text-white truncate">Microsoft</div>
+                  <div class="text-[10px] font-mono text-slate-400">142 skills</div>
+                </div>
+              </div>
+              <div class="flex items-center gap-3 p-3 rounded-xl bg-[#0B1121] border border-white/5 shadow-sm">
+                <div class="w-8 h-8 rounded bg-white/10 flex items-center justify-center text-xs font-bold">ANT</div>
+                <div class="min-w-0">
+                  <div class="text-xs font-mono font-bold text-white truncate">Anthropic</div>
+                  <div class="text-[10px] font-mono text-slate-400">89 skills</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- 现状 FAQ -->
+          <div class="space-y-2">
+            <div class="text-xs font-mono text-slate-400">FAQ 列表</div>
+            <div class="p-3 bg-[#0B1121] rounded-xl border border-white/5 text-xs space-y-2">
+              <!-- AI Tell: 01 假标号 + 展开左边蓝色竖线 -->
+              <div class="font-bold text-white flex items-center justify-between">
+                <span>01. What is an Agent Skill?</span>
+                <span>▲</span>
+              </div>
+              <p class="text-slate-400 pl-3 border-l-2 border-blue-600">
+                A skill is an atomic package containing system prompts and scripts.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 右列：改版后 (After) -->
+        <div class="border border-emerald-500/30 rounded-2xl p-6 bg-emerald-950/5 space-y-8">
+          <div class="flex items-center justify-between pb-3 border-b border-emerald-500/20">
+            <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-mono font-bold text-[11px]">✨ 改版后 (After - 严谨专业技术档案库)</span>
+            <span class="text-[11px] text-slate-400">纯净标题 / 极简搜索 / 灰度徽标 / 扁平秩序</span>
+          </div>
+          <!-- 改版 Hero -->
+          <div class="text-center space-y-4">
+            <h1 class="text-3xl font-extrabold tracking-tight text-white leading-tight">
+              The Open Skill Registry for AI Agents
+            </h1>
+            <p class="text-sm text-slate-400 max-w-lg mx-auto leading-relaxed">
+              645,000+ vetted packages for Claude Code, Codex, Cursor & OpenClaw. One terminal command to run.
+            </p>
+            <div class="max-w-md mx-auto">
+              <!-- 精炼搜索条：去除臃肿高度，加入快捷键提示，不带营销绿点条 -->
+              <div class="flex items-center h-12 bg-[#0B1121] border border-white/10 hover:border-white/20 focus-within:border-blue-500 rounded-xl px-4 transition-colors">
+                <svg class="w-4 h-4 text-slate-400 mr-2.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input class="bg-transparent text-sm w-full outline-none text-white placeholder-slate-500" placeholder="Search skills, packages, MCP tools...">
+                <kbd class="hidden sm:inline-block px-1.5 py-0.5 text-[10px] font-mono text-slate-400 bg-white/5 border border-white/10 rounded">⌘K</kbd>
+              </div>
+            </div>
+          </div>
+          <!-- 改版 信任墙：无小圆点，采用线性致密徽标条 -->
+          <div class="space-y-3">
+            <div class="flex items-center justify-between border-b border-white/5 pb-2">
+              <h2 class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Verified Publishers</h2>
+              <span class="text-xs text-blue-400 font-medium hover:underline cursor-pointer">All 35k+ publishers &rarr;</span>
+            </div>
+            <!-- 纯净灰度矩阵，Hover 时恢复色彩，不再是密密麻麻的小框 -->
+            <div class="grid grid-cols-2 gap-2">
+              <div class="flex items-center gap-3 p-2.5 rounded-lg bg-white/[0.02] hover:bg-white/[0.05] transition-colors cursor-pointer group">
+                <div class="w-7 h-7 rounded bg-white/10 flex items-center justify-center text-xs font-bold text-slate-300">MS</div>
+                <div class="min-w-0">
+                  <div class="text-xs font-medium text-slate-200 group-hover:text-blue-400 transition-colors">Microsoft</div>
+                  <div class="text-[11px] text-slate-500">142 packages</div>
+                </div>
+              </div>
+              <div class="flex items-center gap-3 p-2.5 rounded-lg bg-white/[0.02] hover:bg-white/[0.05] transition-colors cursor-pointer group">
+                <div class="w-7 h-7 rounded bg-white/10 flex items-center justify-center text-xs font-bold text-slate-300">AT</div>
+                <div class="min-w-0">
+                  <div class="text-xs font-medium text-slate-200 group-hover:text-blue-400 transition-colors">Anthropic</div>
+                  <div class="text-[11px] text-slate-500">89 packages</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- 改版 FAQ：无假编号，纯净排版 -->
+          <div class="space-y-2">
+            <div class="text-xs font-semibold text-slate-400">Frequently Asked Questions</div>
+            <div class="p-3 bg-white/[0.02] rounded-xl border border-white/5 text-xs space-y-2">
+              <div class="font-medium text-slate-200 flex items-center justify-between">
+                <span>What is an Agent Skill?</span>
+                <span class="text-slate-500">−</span>
+              </div>
+              <p class="text-slate-400 leading-relaxed text-[11px]">
+                An agent skill is a standardized, auditable capability folder comprising system prompts, executable scripts, and context bundles compatible with the Open Knowledge Protocol.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 单独展示模式（Before 或 After） -->
+      <div id="home-single-container" class="space-y-16">
+        <!-- 默认展示 After 效果（可通过顶部切换） -->
+        <section class="text-center pt-8 pb-4 max-w-3xl mx-auto space-y-6">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.04] border border-white/10 text-xs text-slate-400">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+            <span>645,842 agent capabilities indexed across 35,000+ developers</span>
+          </div>
+          <h1 class="text-4xl sm:text-6xl font-extrabold tracking-tight text-white leading-[1.08]">
+            The Open Skill Registry for AI Agents
+          </h1>
+          <p class="text-base sm:text-lg text-slate-400 max-w-2xl mx-auto font-normal leading-relaxed">
+            Standardized packages to equip Claude Code, Codex, Cursor & OpenClaw with specialized domain intelligence and tools.
+          </p>
+
+          <!-- 48px 精炼搜索条 (无浮空虚浮感，融入环境) -->
+          <div class="max-w-xl mx-auto relative group">
+            <div class="flex items-center h-12 bg-[#0B1121] border border-white/15 hover:border-white/25 focus-within:border-blue-500 rounded-xl px-4 transition-all duration-150">
+              <svg class="w-4 h-4 text-slate-400 mr-3 shrink-0 group-focus-within:text-blue-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input class="bg-transparent text-sm w-full outline-none text-white placeholder-slate-500" placeholder="Search by capability, model, or tool (e.g. 'pdf extractor', 'git hooks')...">
+              <div class="flex items-center gap-1.5 shrink-0 pl-2">
+                <kbd class="px-1.5 py-0.5 text-[10px] font-mono text-slate-400 bg-white/5 border border-white/10 rounded">⌘K</kbd>
+                <button class="bg-blue-600 hover:bg-blue-500 text-white font-medium text-xs px-3 py-1.5 rounded-lg transition-colors">Search</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 官方企业矩阵 (改版后：剔除蓝色圆点，排版从容，静止态不带浮动阴影) -->
+        <section class="space-y-4">
+          <div class="flex items-center justify-between border-b border-white/10 pb-3">
+            <h2 class="text-sm font-semibold text-slate-300 tracking-wide">
+              Verified Organizations & Ecosystems
+            </h2>
+            <a href="#" class="text-xs text-blue-400 hover:text-blue-300 transition-colors font-medium">Explore all 35,000+ developers &rarr;</a>
+          </div>
+
+          <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+            <!-- 企业卡片 1 -->
+            <div class="p-3.5 rounded-xl bg-[#0B1121] border border-white/10 hover:border-white/25 transition-colors cursor-pointer group">
+              <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-lg bg-white/5 p-1.5 flex items-center justify-center shrink-0">
+                  <svg class="w-full h-full text-slate-300" viewBox="0 0 23 23" fill="currentColor"><path d="M0 0h11v11H0zM12 0h11v11H12zM0 12h11v11H0zM12 12h11v11H12z"/></svg>
+                </div>
+                <div class="min-w-0">
+                  <div class="text-sm font-semibold text-slate-200 group-hover:text-blue-400 transition-colors truncate">Microsoft</div>
+                  <div class="text-xs text-slate-500">142 skills</div>
+                </div>
+              </div>
+            </div>
+            <!-- 企业卡片 2 -->
+            <div class="p-3.5 rounded-xl bg-[#0B1121] border border-white/10 hover:border-white/25 transition-colors cursor-pointer group">
+              <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-lg bg-white/5 p-1.5 flex items-center justify-center shrink-0">
+                  <svg class="w-full h-full text-amber-500" viewBox="0 0 24 24" fill="currentColor"><path d="M13.976 9.15c-2.172-.806-3.356-1.426-3.356-2.409 0-.831.683-1.305 1.901-1.305 2.227 0 4.515.858 6.09 1.631l.89-3.494C18.16 2.802 15.69 2 12.35 2 7.15 2 3.65 4.887 3.65 9.176c0 4.85 4.186 5.86 6.84 6.847 2.378.89 3.19 1.572 3.19 2.584 0 .99-.86 1.543-2.32 1.543-2.067 0-4.887-.974-6.84-2.072l-.95 3.52C5.58 22.75 8.79 23.5 11.89 23.5c5.44 0 9.16-2.67 9.16-7.272 0-4.707-3.95-5.836-7.074-7.078z"/></svg>
+                </div>
+                <div class="min-w-0">
+                  <div class="text-sm font-semibold text-slate-200 group-hover:text-blue-400 transition-colors truncate">Anthropic</div>
+                  <div class="text-xs text-slate-500">89 skills</div>
+                </div>
+              </div>
+            </div>
+            <!-- 企业卡片 3 -->
+            <div class="p-3.5 rounded-xl bg-[#0B1121] border border-white/10 hover:border-white/25 transition-colors cursor-pointer group">
+              <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-lg bg-white/5 p-1.5 flex items-center justify-center shrink-0">
+                  <svg class="w-full h-full text-emerald-500" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+                </div>
+                <div class="min-w-0">
+                  <div class="text-sm font-semibold text-slate-200 group-hover:text-blue-400 transition-colors truncate">GitHub Tools</div>
+                  <div class="text-xs text-slate-500">312 skills</div>
+                </div>
+              </div>
+            </div>
+            <!-- 企业卡片 4 -->
+            <div class="p-3.5 rounded-xl bg-[#0B1121] border border-white/10 hover:border-white/25 transition-colors cursor-pointer group">
+              <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-lg bg-white/5 p-1.5 flex items-center justify-center shrink-0">
+                  <svg class="w-full h-full text-green-400" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-3.16 19.49c.5.09.68-.22.68-.48v-1.7c-2.78.6-3.37-1.34-3.37-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.89 1.52 2.34 1.08 2.91.83.1-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.94 0-1.09.39-1.99 1.03-2.69-.1-.25-.45-1.27.1-2.65 0 0 .84-.27 2.75 1.02a9.58 9.58 0 0 1 5 0c1.91-1.29 2.75-1.02 2.75-1.02.55 1.38.2 2.4.1 2.65.64.7 1.03 1.6 1.03 2.69 0 3.84-2.34 4.68-4.57 4.93.36.31.68.92.68 1.85v2.74c0 .27.18.58.69.48A10 10 0 0 0 12 2z"/></svg>
+                </div>
+                <div class="min-w-0">
+                  <div class="text-sm font-semibold text-slate-200 group-hover:text-blue-400 transition-colors truncate">NVIDIA</div>
+                  <div class="text-xs text-slate-500">67 skills</div>
+                </div>
+              </div>
+            </div>
+            <!-- 企业卡片 5 -->
+            <div class="p-3.5 rounded-xl bg-[#0B1121] border border-white/10 hover:border-white/25 transition-colors cursor-pointer group">
+              <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-lg bg-white/5 p-1.5 flex items-center justify-center shrink-0">
+                  <span class="text-xs font-bold text-slate-300">AWS</span>
+                </div>
+                <div class="min-w-0">
+                  <div class="text-sm font-semibold text-slate-200 group-hover:text-blue-400 transition-colors truncate">AWS Labs</div>
+                  <div class="text-xs text-slate-500">205 skills</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 技能卡片货架 (改版后：扁平静止态，无 shadow，普通文本使用 Sans，严格限制 Mono) -->
+        <section class="space-y-4">
+          <div class="flex items-center justify-between border-b border-white/10 pb-3">
+            <div>
+              <h2 class="text-base font-semibold text-white">Software Engineering & Architecture</h2>
+              <p class="text-xs text-slate-500 mt-0.5">Automated refactoring, code review, schema migrations</p>
+            </div>
+            <a href="#" class="text-xs text-blue-400 hover:underline">View all in category &rarr;</a>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <!-- 技能卡片 1 -->
+            <div class="p-5 rounded-2xl bg-[#0B1121] border border-white/10 hover:border-white/25 transition-colors duration-150 flex flex-col justify-between h-full group cursor-pointer">
+              <div class="space-y-3">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <div class="w-6 h-6 rounded-full bg-slate-800 border border-white/10 flex items-center justify-center text-[10px] font-bold">A</div>
+                    <span class="text-xs font-medium text-slate-400 group-hover:text-blue-400 transition-colors">anthropic</span>
+                  </div>
+                  <div class="flex items-center gap-1 text-[11px] font-mono text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded">
+                    <svg class="w-3 h-3 fill-amber-400" viewBox="0 0 16 16"><path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.751.751 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Z"/></svg>
+                    <span>18.4k</span>
+                  </div>
+                </div>
+                <div>
+                  <h3 class="text-base font-bold text-white group-hover:text-blue-400 transition-colors">ast-grep-refactor</h3>
+                  <p class="text-xs text-slate-400 mt-1 leading-relaxed line-clamp-2">AST-based structural code search and linting replacement tool for TypeScript, Rust, and Go.</p>
+                </div>
+              </div>
+              <div class="pt-4 mt-4 border-t border-white/5 flex items-center justify-between text-xs">
+                <span class="px-2 py-0.5 rounded text-[10px] font-medium bg-emerald-500/10 text-emerald-400">OFFICIAL</span>
+                <span class="text-slate-500 text-[11px]">Advanced</span>
+              </div>
+            </div>
+
+            <!-- 技能卡片 2 -->
+            <div class="p-5 rounded-2xl bg-[#0B1121] border border-white/10 hover:border-white/25 transition-colors duration-150 flex flex-col justify-between h-full group cursor-pointer">
+              <div class="space-y-3">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <div class="w-6 h-6 rounded-full bg-slate-800 border border-white/10 flex items-center justify-center text-[10px] font-bold">M</div>
+                    <span class="text-xs font-medium text-slate-400 group-hover:text-blue-400 transition-colors">microsoft</span>
+                  </div>
+                  <div class="flex items-center gap-1 text-[11px] font-mono text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded">
+                    <svg class="w-3 h-3 fill-amber-400" viewBox="0 0 16 16"><path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.751.751 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Z"/></svg>
+                    <span>9.2k</span>
+                  </div>
+                </div>
+                <div>
+                  <h3 class="text-base font-bold text-white group-hover:text-blue-400 transition-colors">playwright-crawler</h3>
+                  <p class="text-xs text-slate-400 mt-1 leading-relaxed line-clamp-2">Headless browser automation skill for agentic web scraping and live UI regression checks.</p>
+                </div>
+              </div>
+              <div class="pt-4 mt-4 border-t border-white/5 flex items-center justify-between text-xs">
+                <span class="px-2 py-0.5 rounded text-[10px] font-medium bg-emerald-500/10 text-emerald-400">OFFICIAL</span>
+                <span class="text-slate-500 text-[11px]">Intermediate</span>
+              </div>
+            </div>
+
+            <!-- 技能卡片 3 -->
+            <div class="p-5 rounded-2xl bg-[#0B1121] border border-white/10 hover:border-white/25 transition-colors duration-150 flex flex-col justify-between h-full group cursor-pointer">
+              <div class="space-y-3">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <div class="w-6 h-6 rounded-full bg-slate-800 border border-white/10 flex items-center justify-center text-[10px] font-bold">C</div>
+                    <span class="text-xs font-medium text-slate-400 group-hover:text-blue-400 transition-colors">cloudflare</span>
+                  </div>
+                  <div class="flex items-center gap-1 text-[11px] font-mono text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded">
+                    <svg class="w-3 h-3 fill-amber-400" viewBox="0 0 16 16"><path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.751.751 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Z"/></svg>
+                    <span>14.1k</span>
+                  </div>
+                </div>
+                <div>
+                  <h3 class="text-base font-bold text-white group-hover:text-blue-400 transition-colors">d1-vector-indexer</h3>
+                  <p class="text-xs text-slate-400 mt-1 leading-relaxed line-clamp-2">Zero-latency SQLite D1 vector embedding pipeline and BM25 index generator for edge runtimes.</p>
+                </div>
+              </div>
+              <div class="pt-4 mt-4 border-t border-white/5 flex items-center justify-between text-xs">
+                <span class="px-2 py-0.5 rounded text-[10px] font-medium bg-blue-500/10 text-blue-400">PARTNER</span>
+                <span class="text-slate-500 text-[11px]">Basic</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </div>
+
+
+    <!-- ==========================================================
+         VIEW 2: 技能详情页 (Skill Detail: Metadata + Terminal + Docs)
+         ========================================================== -->
+    <div id="view-skill" class="hidden space-y-8">
+      
+      <!-- 面包屑导航 (Sans 字体，去除硬塞的 Mono) -->
+      <nav class="flex items-center gap-2 text-xs text-slate-400">
+        <a href="#" class="hover:text-white transition-colors">Home</a>
+        <span>/</span>
+        <a href="#" class="hover:text-white transition-colors">Software Engineering</a>
+        <span>/</span>
+        <span class="text-white font-medium">ast-grep-refactor</span>
+      </nav>
+
+      <!-- 核心名片与安装器双列卡片 -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start p-6 sm:p-8 rounded-2xl bg-[#0B1121] border border-white/10">
+        
+        <!-- 左侧 7 列：规格与元数据 -->
+        <div class="lg:col-span-7 space-y-6">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-xl bg-slate-800 border border-white/10 flex items-center justify-center text-lg font-bold">A</div>
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="text-sm font-semibold text-white">anthropic</span>
+                <span class="px-2 py-0.5 rounded text-[10px] font-medium bg-emerald-500/10 text-emerald-400">OFFICIAL</span>
+              </div>
+              <a href="#" class="text-xs text-slate-500 hover:underline">View all 89 packages by author &rarr;</a>
+            </div>
+          </div>
+
+          <div>
+            <h1 class="text-3xl font-extrabold text-white tracking-tight">ast-grep-refactor</h1>
+            <p class="text-sm text-slate-300 mt-2 leading-relaxed">
+              Automated AST-level syntax rewrites and mass refactoring tool. Performs safe syntax tree transformation across polyglot repositories without breaking TypeScript or Python typing.
+            </p>
+          </div>
+
+          <!-- 精致规范的指标条 (无 Emoji，纯净矢量图标) -->
+          <div class="flex flex-wrap items-center gap-3 text-xs text-slate-400 pt-2">
+            <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-white/5 border border-white/10 font-mono text-amber-400">
+              <svg class="w-3.5 h-3.5 fill-amber-400" viewBox="0 0 16 16"><path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.751.751 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Z"/></svg>
+              <span>18,420 stars</span>
+            </div>
+            <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-white/5 border border-white/10 font-mono">
+              <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 16 16"><path d="M5 3.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm0 2.122a2.25 2.25 0 1 0-1.5 0v.878A2.25 2.25 0 0 0 5.75 8.5h4.5A2.25 2.25 0 0 0 12.5 6.25v-.878a2.25 2.25 0 1 0-1.5 0v.878a.75.75 0 0 1-.75.75h-4.5A.75.75 0 0 1 5 6.25v-.878Zm3.75 7.378a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm.75-2.122v-.878A2.25 2.25 0 0 0 8 7.5a2.25 2.25 0 0 0-1.5 2.25v.878a2.25 2.25 0 1 0 1.5 0v-.878a.75.75 0 0 1 .75-.75.75.75 0 0 1 .75.75v.878a2.25 2.25 0 1 0 1.5 0Z"/></svg>
+              <span>1,240 forks</span>
+            </div>
+            <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-white/5 border border-white/10 text-slate-400">
+              <svg class="w-3.5 h-3.5 text-blue-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              <span>Updated 3 days ago</span>
+            </div>
+          </div>
+
+          <!-- 依赖说明芯片 (改版后：剔除 💡 灯泡 Emoji 与散乱自然语言，规范为芯片列表) -->
+          <div class="p-3.5 rounded-xl bg-white/[0.02] border border-white/5 flex items-center gap-2 text-xs">
+            <span class="text-slate-400 font-medium">Dependencies:</span>
+            <span class="px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 font-mono text-[11px]">node &gt;= 18.0</span>
+            <span class="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 font-mono text-[11px]">@ast-grep/cli</span>
+          </div>
+        </div>
+
+        <!-- 右侧 5 列：终端高转化安装器 (Terminal Install Box) -->
+        <div class="lg:col-span-5 w-full bg-[#020617] rounded-xl border border-white/10 p-5 space-y-4 shadow-xl">
+          <div class="flex items-center justify-between pb-3 border-b border-white/10">
+            <div class="flex items-center gap-1.5">
+              <span class="w-2.5 h-2.5 rounded-full bg-red-500/80"></span>
+              <span class="w-2.5 h-2.5 rounded-full bg-amber-500/80"></span>
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-500/80"></span>
+              <span class="text-[11px] font-mono text-slate-500 ml-2">install terminal</span>
+            </div>
+            <!-- 包管理器切换 -->
+            <div class="flex bg-white/5 rounded-lg p-0.5 text-[11px] font-mono">
+              <button class="px-2 py-0.5 rounded bg-blue-600 text-white font-bold">npx</button>
+              <button class="px-2 py-0.5 rounded text-slate-400 hover:text-white">pnpm</button>
+              <button class="px-2 py-0.5 rounded text-slate-400 hover:text-white">bunx</button>
+            </div>
+          </div>
+
+          <!-- 复制终端命令区 -->
+          <div class="relative bg-slate-950 p-3.5 rounded-lg border border-white/5 group">
+            <div class="font-mono text-xs text-emerald-400 overflow-x-auto select-all pr-12">
+              npx skills add anthropic/tools --skill ast-grep-refactor
+            </div>
+            <button onclick="copySnippet(this, 'npx skills add anthropic/tools --skill ast-grep-refactor')" class="absolute right-2 top-2 bottom-2 px-3 bg-white/10 hover:bg-white/20 active:scale-95 text-slate-200 rounded font-mono text-xs flex items-center gap-1 transition-all">
+              <span>Copy</span>
+            </button>
+          </div>
+
+          <div class="text-[11px] text-slate-500 flex items-center justify-between">
+            <span>Runs on macOS, Linux, Windows</span>
+            <span class="text-blue-400 cursor-pointer hover:underline">Copy Prompt for Claude &rarr;</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- 系统 Markdown 规范渲染区 (改版后：无多余蓝色圆点，排版清爽) -->
+      <section class="p-6 sm:p-8 rounded-2xl bg-[#0B1121] border border-white/10 space-y-4">
+        <h2 class="text-lg font-bold text-white tracking-tight border-b border-white/10 pb-3">
+          System Documentation & Prompt Rules
+        </h2>
+        <div class="text-xs sm:text-sm text-slate-300 space-y-4 leading-relaxed max-w-none">
+          <p>
+            When loaded by an agent, this skill intercepts code rewrite requests and analyzes AST nodes prior to executing sed or regexp substitutions. It guarantees syntax validation prior to saving modified files.
+          </p>
+          <div class="p-4 rounded-xl bg-slate-950 border border-white/5 font-mono text-xs text-slate-300">
+            <span class="text-slate-500"># Example agent prompt trigger</span><br>
+            Please refactor all React.FC type signatures in ./src/components to standard props interfaces.
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+
+    <!-- ==========================================================
+         VIEW 3: 探索工作台与空态 (Explore & Empty State)
+         ========================================================== -->
+    <div id="view-explore" class="hidden space-y-8">
+      
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        
+        <!-- 左侧筛选导航 (改版后：普通无衬线字体，优雅选中态) -->
+        <div class="md:col-span-1 space-y-6">
+          <div class="space-y-2">
+            <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Domains & Categories</h3>
+            <div class="space-y-1 text-xs">
+              <a href="#" class="block px-3 py-2 rounded-lg bg-blue-600/15 text-blue-400 font-semibold border border-blue-500/20">All Categories (645k)</a>
+              <a href="#" class="block px-3 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-colors">Software Engineering</a>
+              <a href="#" class="block px-3 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-colors">Data & Analytics</a>
+              <a href="#" class="block px-3 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-colors">Product & Management</a>
+              <a href="#" class="block px-3 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-colors">Security & Compliance</a>
+            </div>
+          </div>
+
+          <div class="space-y-2 pt-4 border-t border-white/10">
+            <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Author Type</h3>
+            <div class="space-y-1 text-xs">
+              <label class="flex items-center gap-2 text-slate-300 cursor-pointer">
+                <input type="checkbox" checked class="rounded border-white/20 bg-slate-800 text-blue-600">
+                <span>Official Organizations</span>
+              </label>
+              <label class="flex items-center gap-2 text-slate-300 cursor-pointer">
+                <input type="checkbox" checked class="rounded border-white/20 bg-slate-800 text-blue-600">
+                <span>Community Contributed</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- 右侧主工作区：改版空态 (去除虚线框与 🔍/📡 Emoji，提供即时价值的热门推荐) -->
+        <div class="md:col-span-3 space-y-6">
+          
+          <div class="flex items-center justify-between pb-4 border-b border-white/10">
+            <h1 class="text-xl font-bold text-white">Explore Skills</h1>
+            <span class="text-xs text-slate-500 font-mono">Filter mode: Active</span>
+          </div>
+
+          <!-- 改版后的初始空态：从容有秩序，而不是画一个大虚线框 -->
+          <div class="p-8 rounded-2xl bg-[#0B1121] border border-white/10 text-center space-y-5">
+            <div class="max-w-md mx-auto space-y-2">
+              <h3 class="text-base font-bold text-white">Discover Specialized Agent Tools</h3>
+              <p class="text-xs text-slate-400 leading-relaxed">
+                Choose a vertical domain on the left, or try one of the trending queries below to start exploring vetted packages.
+              </p>
+            </div>
+
+            <!-- 热门搜索推荐词胶囊 (一键触发) -->
+            <div class="flex flex-wrap items-center justify-center gap-2 pt-2">
+              <span class="text-xs text-slate-500">Popular:</span>
+              <button class="px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 border border-white/10 text-xs transition-colors">#pdf-parser</button>
+              <button class="px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 border border-white/10 text-xs transition-colors">#sql-generator</button>
+              <button class="px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 border border-white/10 text-xs transition-colors">#playwright</button>
+              <button class="px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 border border-white/10 text-xs transition-colors">#docker-builder</button>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- ============================================================
+       页脚 (改版后：彻底去除等宽 Mono 字体，优雅 4 列排版)
+       ============================================================ -->
+  <footer class="mt-auto border-t border-white/10 bg-[#080E1E] py-10 text-xs text-slate-400">
+    <div class="max-w-[1440px] mx-auto px-4 sm:px-8 grid grid-cols-2 md:grid-cols-4 gap-8">
+      <div class="space-y-3">
+        <div class="font-bold text-sm text-white">skills.rest</div>
+        <p class="text-slate-500 text-[11px] leading-relaxed">The open, auditable package registry for autonomous AI agents.</p>
+      </div>
+      <div class="space-y-2">
+        <div class="font-semibold text-slate-300">Discovery</div>
+        <ul class="space-y-1.5 text-slate-500">
+          <li><a href="#" class="hover:text-white transition-colors">Explore Library</a></li>
+          <li><a href="#" class="hover:text-white transition-colors">Best Skills 2026</a></li>
+          <li><a href="#" class="hover:text-white transition-colors">Organizations</a></li>
+        </ul>
+      </div>
+      <div class="space-y-2">
+        <div class="font-semibold text-slate-300">Developers</div>
+        <ul class="space-y-1.5 text-slate-500">
+          <li><a href="#" class="hover:text-white transition-colors">CLI Discovery Tool</a></li>
+          <li><a href="#" class="hover:text-white transition-colors">Submit a Skill</a></li>
+          <li><a href="#" class="hover:text-white transition-colors">Documentation</a></li>
+        </ul>
+      </div>
+      <div class="space-y-2">
+        <div class="font-semibold text-slate-300">Platform</div>
+        <ul class="space-y-1.5 text-slate-500">
+          <li><a href="#" class="hover:text-white transition-colors">System Status</a></li>
+          <li><a href="#" class="hover:text-white transition-colors">Privacy & Terms</a></li>
+          <li><a href="#" class="hover:text-white transition-colors">GitHub Repository</a></li>
+        </ul>
+      </div>
+    </div>
+  </footer>
+
+  <!-- 提示弹窗 (Toast) -->
+  <div id="toast" class="fixed bottom-6 right-6 z-50 bg-emerald-600 text-white text-xs px-4 py-2.5 rounded-xl shadow-lg transform translate-y-20 opacity-0 transition-all duration-200 flex items-center gap-2">
+    <span>✓</span>
+    <span id="toast-msg">Command copied to clipboard!</span>
+  </div>
+
+  <!-- 交互逻辑脚本 -->
+  <script>
+    // 切换界面 (Surface: home / skill / explore)
+    function setSurface(surface) {
+      document.getElementById('view-home').classList.add('hidden');
+      document.getElementById('view-skill').classList.add('hidden');
+      document.getElementById('view-explore').classList.add('hidden');
+
+      document.getElementById('btn-surface-home').className = 'px-3 py-1 rounded font-medium text-slate-400 hover:text-white transition-colors';
+      document.getElementById('btn-surface-skill').className = 'px-3 py-1 rounded font-medium text-slate-400 hover:text-white transition-colors';
+      document.getElementById('btn-surface-explore').className = 'px-3 py-1 rounded font-medium text-slate-400 hover:text-white transition-colors';
+
+      document.getElementById(`view-${surface}`).classList.remove('hidden');
+      document.getElementById(`btn-surface-${surface}`).className = 'px-3 py-1 rounded font-medium bg-blue-600 text-white transition-colors';
+
+      const inspector = document.getElementById('inspector-text');
+      if (surface === 'home') {
+        inspector.innerText = '首页核心区：去除大标题小彩点与 FAQ 假标号 01-05，大厂矩阵改为平整专业条目，移除卡片悬浮抖动。';
+      } else if (surface === 'skill') {
+        inspector.innerText = '技能详情页：用精致 SVG 矢量图标取代 Emoji，依赖项转为标准芯片组，安装终端高质感呈现。';
+      } else if (surface === 'explore') {
+        inspector.innerText = '探索台：分类导航改回清晰无衬线字体，空态抛弃虚线框与 Emoji，提供高价值的常用搜索建议。';
+      }
+    }
+
+    // 切换对比模式 (Mode: after / before / split)
+    function setMode(mode) {
+      const splitCont = document.getElementById('home-split-container');
+      const singleCont = document.getElementById('home-single-container');
+      
+      document.getElementById('btn-mode-after').className = 'px-3 py-1 rounded font-medium text-slate-400 hover:text-white transition-colors';
+      document.getElementById('btn-mode-before').className = 'px-3 py-1 rounded font-medium text-slate-400 hover:text-white transition-colors';
+      document.getElementById('btn-mode-split').className = 'px-3 py-1 rounded font-medium text-slate-400 hover:text-white transition-colors';
+
+      if (mode === 'split') {
+        setSurface('home');
+        splitCont.classList.remove('hidden');
+        singleCont.classList.add('hidden');
+        document.getElementById('btn-mode-split').className = 'px-3 py-1 rounded font-medium bg-blue-600/30 text-blue-400 border border-blue-500/30 transition-colors';
+      } else if (mode === 'before') {
+        setSurface('home');
+        splitCont.classList.add('hidden');
+        singleCont.classList.remove('hidden');
+        document.getElementById('btn-mode-before').className = 'px-3 py-1 rounded font-medium bg-red-600/30 text-red-400 border border-red-500/30 transition-colors';
+      } else {
+        splitCont.classList.add('hidden');
+        singleCont.classList.remove('hidden');
+        document.getElementById('btn-mode-after').className = 'px-3 py-1 rounded font-medium bg-emerald-600/30 text-emerald-400 border border-emerald-500/30 transition-colors';
+      }
+    }
+
+    // 主题切换 (Light / Dark)
+    function toggleTheme() {
+      const html = document.documentElement;
+      const isDark = html.classList.toggle('dark');
+      document.getElementById('theme-icon').innerText = isDark ? '🌙' : '☀️';
+      document.getElementById('theme-label').innerText = isDark ? 'Dark' : 'Light';
+    }
+
+    // 复制命令反馈
+    function copySnippet(btn, text) {
+      navigator.clipboard.writeText(text);
+      const original = btn.innerHTML;
+      btn.innerHTML = '<span class="text-emerald-400 font-bold">✓ Copied</span>';
+      showToast('Command copied to clipboard!');
+      setTimeout(() => {
+        btn.innerHTML = original;
+      }, 1500);
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toast-msg').innerText = msg;
+      toast.classList.remove('translate-y-20', 'opacity-0');
+      setTimeout(() => {
+        toast.classList.add('translate-y-20', 'opacity-0');
+      }, 2000);
+    }
+  </script>
+</body>
+</html>

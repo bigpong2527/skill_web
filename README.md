@@ -1,57 +1,100 @@
-# skills.rest
+# skills.rest — Open Agent Skills Registry
 
-> The open registry of 645,000+ vetted agent skills for Claude Code, OpenClaw, Cursor & Codex. One-click install. 100% free.
+[English](README.md) | [简体中文](README.zh-CN.md) | [日本語](README.ja.md) | [한국어](README.ko.md)
 
-## What is skills.rest?
+---
 
-skills.rest is the world's largest open, curated library of executable AI agent skills. Each skill is a standardized, installable package (featuring a SKILL.md and execution resources) that extends the operational capabilities of AI coding agents. Skills cover 10 professional workflow domains and are published by verified tech leaders, official organizations, and open-source contributors.
+## Overview
 
-## Key Features
+**skills.rest** is a comprehensive, open directory and discovery platform for AI agent skills. It indexes over 750,000+ vetted, standardized executable skills designed to extend the procedural knowledge, operational toolsets, and workflow execution capabilities of modern AI coding assistants and autonomous agents.
 
-- 645,000+ vetted and indexed agent skills
-- Official skills from 335+ verified tech leaders (Microsoft, Anthropic, AWS, NVIDIA, Google, OpenAI, Vercel)
-- Universal support for Claude Code, OpenClaw, Cursor, Trae, and Codex
-- One-click installation via `npx skills add <repo> --skill <slug>` or structured prompt
-- 10 specialized professional workflow domains
-- 100% free and open-source
+Every skill listed on the platform adheres to an open specification (standardized `SKILL.md` instruction files accompanied by optional executable scripts and dependency requirements). The registry is 100% free, updated continuously, and organized to bridge the gap between high-level language models and deterministic task execution.
 
-## How to Install a Skill
+---
 
-**npx CLI Command (Recommended):**
-Run the standardized installation command on any skill detail page in your terminal:
-`npx skills add <repo_url> --skill <skill_slug>`
+## What Can Visitors Do on skills.rest?
 
-**Agent Search Tool (Autonomously):**
-Install the open-source `skill-discovery` helper into your local agent environment (`.claude/skills` or `.openclaw/skills`). Your AI agent can then search and fetch skills from skills.rest dynamically on demand.
+Whether you are a developer looking to supercharge your local AI coding assistant, a team designing autonomous agent workflows, or an open-source author publishing custom capabilities, the platform provides dedicated tooling and interactive discovery modules.
 
-**Structured Prompt:**
-Copy the structured prompt from the skill page and paste it into your AI agent session to guide manual inspection and extraction.
+### 1. Search and Filter the Skills Catalog
+- **Keyword & Natural Language Search**: Search across hundreds of thousands of skills using natural task descriptions, tool names, or technical domains (e.g., `pdf extraction`, `test-driven development`, `database migration`).
+- **Multi-Dimensional Exploration (`/explore`)**:
+  - **Category Filter**: Filter through 10 distinct professional domains.
+  - **Origin Filter**: Toggle between **Official** skills published by verified technology organizations and **Community** contributions from independent developers.
+  - **Complexity Ratings**: Narrow down skills by difficulty level (**Basic**, **Intermediate**, and **Advanced**).
+- **Responsive Infinite Browsing**: Browse dense collections smoothly with persistent scroll-state memory that preserves your place when navigating back from skill detail pages.
 
-## Categories
+### 2. Inspect In-Depth Skill Specifications
+Each skill possesses a dedicated detail page (`/skill/[slug]`) providing all information required to evaluate and execute it safely:
+- **System Documentation**: Clear breakdowns of what exact problem the skill solves, core feature lists, supported frameworks, and practical use cases.
+- **Dependency & Requirement Checks**: Transparent identification of required command-line utilities, runtime binaries, API keys, or companion packages.
+- **Verified Publisher Metadata**: View author credentials, repository stars, fork metrics, and direct links to source code and developer profiles.
+- **Interactive FAQ Accordions**: Structured answers addressing common installation questions, compatibility boundaries, and usage patterns.
+- **Contextual Recommendations**: Discover related and complementary skills within the same functional domain.
 
-- Software Engineering — Code generation, testing, debugging, architecture, migration
-- Data & Analytics — SQL optimization, PDF/XLSX table extraction, visualization
-- Design & Creative — SVG design, canvas art, UI/UX guidelines, p5.js, theme styling
-- Content & Communication — Writing guidelines, documentation, internal comms, Markdown
-- Product Management — User stories, Jira sync, PR release notes, roadmap planning
-- Education & Research — ArXiv papers, LaTeX formatting, academic citations, summaries
-- Finance & Accounting — Financial modeling, invoice parsing, tax prep, crypto tracking
-- Legal & Compliance — Contract analysis, GDPR compliance, NDA drafting, license scanning
-- Marketing & Sales — SEO schema, cold outreach, brand positioning, competitor intelligence
-- Personal & Entrepreneur — Daily standup bots, habit trackers, second-brain sync
+### 3. One-Click Installation & Structured Prompt Extraction
+The platform eliminates manual configuration friction by generating standard installation scripts directly on each skill card and detail page:
+- **Multi-Package-Manager Support**: Instantly toggle and copy commands tailored for your preferred package runner (`npx`, `pnpm dlx`, or `bunx`):
+  ```bash
+  npx skills add <repository-url> --skill <skill-slug>
+  ```
+- **Structured Prompts for Direct Agent Loading**: Copy structured, model-readable prompt blocks designed to be pasted directly into an active AI agent chat session, instructing the agent to inspect, retrieve, and load the skill autonomously.
 
-## Key Pages
+### 4. Manage Suites and Batch Installations (`/best-skills` & `/repo/...`)
+For projects requiring coordinated sets of capabilities, visitors can explore full repository suites:
+- **Best Skills Hub (`/best-skills`)**: Discover market-validated, high-starred collections covering end-to-end disciplines such as UI/UX design systems, software refactoring, and data processing.
+- **Repository Suite Pages (`/repo/[owner]/[name]`)**:
+  - **Install-All Execution**: Generate bulk commands to install an entire suite globally with a single command (`--all -g -y`).
+  - **Custom Multi-Select Mode**: Check individual skills from a suite to dynamically assemble a tailored installation command via a floating action dock.
+  - **Agent Guide Prompts**: Extract rule prompts that teach agents how to merge new project guidelines without overwriting local configurations.
 
-- https://skills.rest — Home, featuring 10 Tech Leader hubs, most starred skills, and 10 workflow category shelves
-- https://skills.rest/explore — Full skill library with multi-dimensional search and filters
-- https://skills.rest/companies — Directory of 335+ verified official organizations and tech leaders
-- https://skills.rest/company/microsoft — Microsoft's portfolio of 662 official agent skills
-- https://skills.rest/company/anthropics — Anthropic's portfolio of 354 official agent skills
-- https://skills.rest/openclaw — OpenClaw companion skills and supercharge hub
-- https://skills.rest/contribute — How to submit and index open-source skills
-- https://skills.rest/privacy — Privacy policy, about, and developer support
-- https://skills.rest/terms — Terms of service
+### 5. Enable Autonomous On-Demand Skill Discovery (`/skills-search-cli`)
+Instead of searching manually on the web, developers can empower their AI agents to discover and install skills autonomously when encountering unfamiliar tasks:
+- **Native Helper Tool**: Install a lightweight local helper (`skill-discovery`) into your agent's local environment. When your assistant needs a specialized workflow, it queries the registry API, presents the best candidate matches, and installs the chosen skill upon your approval.
+- **Zero-Install Universal Agent Rules**: Copy standardized discovery instructions directly into your workspace instruction files (`AGENTS.md`, system prompts, or IDE configuration rules), establishing a universal discovery protocol across any compliant AI agent.
 
-## Sitemap Index
+### 6. Browse the Organizations Directory (`/companies`)
+- **Verified Technology Entities**: Browse hundreds of certified technology institutions, development teams, and official open-source foundations.
+- **Ecosystem Classification**: Navigate organizations structured across technical sectors, including cloud infrastructure, artificial intelligence and model runtimes, developer tooling, security, and data analytics.
+- **Author Profiles & Capability Distribution**: Examine organizational profiles complete with interactive SVG capability distribution charts illustrating their skill focus areas.
 
-https://skills.rest/sitemap.xml
+### 7. Submit Open-Source Skills (`/contribute`)
+- **Community Contribution Portal**: Developers and maintainers can submit public Git repository links to be indexed.
+- **Automated Scanning & Quality Verification**: Submitted repositories undergo automated inspection to verify `SKILL.md` format compliance, dependency declarations, and security safety before being made publicly searchable.
+
+---
+
+## Professional Workflow Domains
+
+The registry categorizes skills across 10 specialized workflow domains:
+
+| Category | Typical Use Cases & Capabilities |
+|---|---|
+| **Software Engineering** | Code generation, architectural migrations, automated refactoring, TDD workflows, CI/CD pipeline automation, and debugging. |
+| **Data & Analytics** | Structured data extraction (SQL/CSV/JSON), table parsing, database performance tuning, and business intelligence reporting. |
+| **Design & Creative** | Design system implementation, SVG asset generation, responsive UI layout audits, typography, and animation timing. |
+| **Content & Communication** | Technical writing, changelog generation, documentation synchronization, and structured editorial drafting. |
+| **Product & Management** | User story generation, backlog refinement, sprint release notes, roadmap synthesis, and issue tracking. |
+| **Education & Research** | Academic paper summarization, LaTeX formula formatting, literature citation review, and study curriculum synthesis. |
+| **Finance & Accounting** | Financial spreadsheet modeling, invoice parsing, budget reconciliations, and transactional auditing. |
+| **Legal & Compliance** | Contract clause cross-referencing, license compliance audits, and regulatory requirement checklists. |
+| **Marketing & Sales** | Structured metadata drafting, outreach copy design, and competitive product analysis. |
+| **Personal & Entrepreneur** | Workflow automations, knowledge base linking, task management, and daily operational routines. |
+
+---
+
+## Security, Privacy, and Execution Principles
+
+- **Local Execution**: All skills execute exclusively in your local development environment or designated agent sandbox. The registry does not execute untrusted user code on its servers.
+- **Explicit User Consent**: Installation commands and automated search helpers require explicit confirmation before modifying local configurations or running terminal scripts.
+- **Automated Security Ingestion Screening**: Every submitted skill is scanned for malicious command execution, unsafe remote scripts, and structural integrity prior to publication.
+- **Zero Account Requirement**: The catalog is accessible and usable without mandatory registration, account creation, or proprietary paywalls.
+
+---
+
+## Getting Started
+
+1. Visit [skills.rest](https://skills.rest) to search for your task or browse by category.
+2. Select a skill to view its requirements and documentation.
+3. Copy the installation command or prompt into your agent terminal or conversational workspace.
+4. (Optional) Configure the [Skills Search CLI](https://skills.rest/skills-search-cli) to enable autonomous discovery for your agent workflows.

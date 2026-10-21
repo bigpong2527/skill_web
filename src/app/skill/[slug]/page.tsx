@@ -287,8 +287,8 @@ export default async function SkillDetailPage({ params }: PageProps) {
                 )}
               </div>
 
-              {/* ===== 右侧 5 列: 紧凑三合一安装器 (不再拉长) ===== */}
-              <div className="lg:col-span-5 w-full">
+              {/* ===== 右侧 5 列: 紧凑三合一安装器 (常驻视口，滚动跟随提升转化率) ===== */}
+              <div className="lg:col-span-5 w-full sticky top-24">
                 <SkillInstallBlock skill={skill} />
               </div>
 
